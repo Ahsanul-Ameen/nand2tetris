@@ -1,0 +1,220 @@
+/** Implements to insert user symbol on screen*/
+
+class InsertXO{
+    field int symId,block;
+		
+	constructor InsertXO new(int i){
+		let symId = i;
+		return this;
+	}
+	
+	method void drawSym(int i){
+		let block=i;
+		if(symId=1){do insertCross(); return;}
+		if(symId=2){do insertCircle(); return;}
+		return;
+	}
+	
+	// draw symbol "X"
+	method void insertCross(){
+		
+		if(block=0){
+			
+			do  Screen.drawLine(158, 38, 218, 98);
+			do  Screen.drawLine(159, 38, 219, 98);
+			do  Screen.drawLine(160, 38, 220, 98);
+			do  Screen.drawLine(161, 38, 221, 98);
+			
+			do  Screen.drawLine(159, 98, 219, 38);
+			do  Screen.drawLine(160, 98, 220, 38);
+			do  Screen.drawLine(161, 98, 221, 38);
+			do  Screen.drawLine(162, 98, 222, 38);
+		}
+		else{
+		if(block=3){
+			do  Screen.drawLine(158, 110, 218, 170);
+			do  Screen.drawLine(159, 110, 219, 170);
+			do  Screen.drawLine(160, 110, 220, 170);
+			do  Screen.drawLine(161, 110, 221, 170);
+			
+			
+			do  Screen.drawLine(159, 170, 219, 110);
+			do  Screen.drawLine(160, 170, 220, 110);
+			do  Screen.drawLine(161, 170, 221, 110);
+			do  Screen.drawLine(162, 170, 222, 110);
+		}
+		else{if(block=6){
+			do  Screen.drawLine(158, 180, 218, 240);
+			do  Screen.drawLine(159, 180, 219, 240);
+			do  Screen.drawLine(160, 180, 220, 240);
+			do  Screen.drawLine(161, 180, 221, 240);
+			
+			
+			do  Screen.drawLine(159, 240, 219, 180);
+			do  Screen.drawLine(160, 240, 220, 180);
+			do  Screen.drawLine(161, 240, 221, 180);
+			do  Screen.drawLine(162, 240, 222, 180);
+		}
+		else{if(block=1){
+			do  Screen.drawLine(288, 38, 348, 98);
+			do  Screen.drawLine(289, 38, 349, 98);
+			do  Screen.drawLine(290, 38, 350, 98);
+			do  Screen.drawLine(291, 38, 351, 98);
+			
+			
+			do  Screen.drawLine(288, 98, 348, 38);
+			do  Screen.drawLine(289, 98, 349, 38);
+			do  Screen.drawLine(290, 98, 350, 38);
+			do  Screen.drawLine(291, 98, 351, 38);
+			
+		}
+		else{if(block=4){
+			do  Screen.drawLine(288, 110, 348, 170);
+			do  Screen.drawLine(289, 110, 349, 170);
+			do  Screen.drawLine(290, 110, 350, 170);
+			do  Screen.drawLine(291, 110, 351, 170);
+			
+			
+			do  Screen.drawLine(288, 170, 348, 110);
+			do  Screen.drawLine(289, 170, 349, 110);
+			do  Screen.drawLine(290, 170, 350, 110);
+			do  Screen.drawLine(291, 170, 351, 110);
+		}
+		else{if(block=7){
+			do  Screen.drawLine(288, 180, 348, 240);
+			do  Screen.drawLine(289, 180, 349, 240);
+			do  Screen.drawLine(290, 180, 350, 240);
+			do  Screen.drawLine(291, 180, 351, 240);
+			
+			
+			do  Screen.drawLine(288, 240, 348, 180);
+			do  Screen.drawLine(289, 240, 349, 180);
+			do  Screen.drawLine(290, 240, 350, 180);
+			do  Screen.drawLine(291, 240, 351, 180);
+		
+		}
+		else{if(block=2){
+			do  Screen.drawLine(416, 38, 476, 98);
+			do  Screen.drawLine(417, 38, 477, 98);
+			do  Screen.drawLine(418, 38, 478, 98);
+			do  Screen.drawLine(419, 38, 479, 98);
+			
+			
+			do  Screen.drawLine(416, 98, 476, 38);
+			do  Screen.drawLine(417, 98, 477, 38);
+			do  Screen.drawLine(418, 98, 478, 38);
+			do  Screen.drawLine(419, 98, 479, 38);
+		}
+		else{if(block=5){
+			do  Screen.drawLine(416, 110, 476, 170);
+			do  Screen.drawLine(417, 110, 477, 170);
+			do  Screen.drawLine(418, 110, 478, 170);
+			do  Screen.drawLine(419, 110, 479, 170);
+			
+			
+			do  Screen.drawLine(416, 170, 476, 110);
+			do  Screen.drawLine(417, 170, 477, 110);
+			do  Screen.drawLine(418, 170, 478, 110);
+			do  Screen.drawLine(419, 170, 479, 110);
+		}
+		else{if(block=8){
+			do  Screen.drawLine(416, 180, 476, 240);
+			do  Screen.drawLine(417, 180, 477, 240);
+			do  Screen.drawLine(418, 180, 478, 240);
+			do  Screen.drawLine(419, 180, 479, 240);
+			
+			
+			do  Screen.drawLine(416, 240, 476, 180);
+			do  Screen.drawLine(417, 240, 477, 180);
+			do  Screen.drawLine(418, 240, 478, 180);
+			do  Screen.drawLine(419, 240, 479, 180);
+		}}}}}}}}}
+		
+		
+		
+		
+	return;
+	}
+	
+	// draw symbol "O"
+	method void insertCircle(){
+		if(block=0){
+			do  Screen.drawCircle(190, 68,30);
+			do Screen.setColor(false);
+			do  Screen.drawCircle(190, 68,27);
+			do Screen.setColor(true);
+			do Screen.drawPixel(190, 68);
+		}
+		
+		else{
+		if(block=3) {
+			do  Screen.drawCircle(190, 140,30);
+			do Screen.setColor(false);
+			do  Screen.drawCircle(190, 140,27);
+			do Screen.setColor(true);
+			do Screen.drawPixel(190, 140);}
+		
+		
+		else{
+		if(block=6) {
+			do  Screen.drawCircle(190, 210,30);
+			do Screen.setColor(false);
+			do  Screen.drawCircle(190, 210,27);
+			do Screen.setColor(true);
+			do Screen.drawPixel(190, 210);}
+		else{
+		if(block=1) {
+			do  Screen.drawCircle(320, 68,30);
+			do Screen.setColor(false);
+			do  Screen.drawCircle(320, 68,27);
+			do Screen.setColor(true);
+			do Screen.drawPixel(320, 68);
+		}
+		else{
+		if(block=4) {
+			do  Screen.drawCircle(320, 140,30);
+			do Screen.setColor(false);
+			do  Screen.drawCircle(320, 140,27);
+			do Screen.setColor(true);
+			do Screen.drawPixel(320, 140);}
+		else{
+		if(block=7) {
+			do  Screen.drawCircle(320, 210,30);
+			do Screen.setColor(false);
+			do  Screen.drawCircle(320, 210,27);
+			do Screen.setColor(true);
+			do Screen.drawPixel(320, 210);}
+		else{
+		if(block=2) {
+			do  Screen.drawCircle(448, 68,30);
+			do Screen.setColor(false);
+			do  Screen.drawCircle(448, 68,27);
+			do Screen.setColor(true);
+			do Screen.drawPixel(448, 68);}
+		else{
+		if(block=5) {
+			do  Screen.drawCircle(448, 140,30);
+			do Screen.setColor(false);
+			do  Screen.drawCircle(448, 140,27);
+			do Screen.setColor(true);
+			do Screen.drawPixel(448,140);}
+		else{
+		if(block=8) {
+			do  Screen.drawCircle(448, 210,30);
+			do Screen.setColor(false);
+			do  Screen.drawCircle(448, 210,27);
+			do Screen.setColor(true);
+			do Screen.drawPixel(448, 210);}
+		}}}}}}}}
+		
+		return;
+		}   //  End insertCircle Function
+
+		method void dispose() {
+			do Memory.deAlloc(this);
+		return;}
+
+}
+
+
+

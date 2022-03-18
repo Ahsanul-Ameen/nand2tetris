@@ -1,0 +1,14 @@
+
+/** Initializes a new Tic-Toc-Toe game and starts running it. */
+class Main{
+	function void main(){
+		var TicTacToe game;
+        let game = TicTacToe.new();
+        do game.start();
+        do game.dispose();
+		do Screen.clearScreen();
+        return;
+	
+	
+	}
+}

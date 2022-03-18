@@ -1,0 +1,106 @@
+class Paddle {
+	field int x;	// bitmap position of x 
+	field int y;	// bitmap position of y
+	
+	/** constructs an object of paddle */
+	constructor Paddle new (int Ax, int Ay) {
+		let x = Ax;
+		let y = Ay;
+		do Paddle.drawPaddle(x, y);
+		return this;
+	}
+	
+	/** Destructor */
+	method void dispose() {
+		do Memory.deAlloc(this);
+		return;
+	}
+	
+	/** Accessors */
+	method int getX() { return x; }
+	method int getY() { return y; }	
+	
+	/** move paddle to left */
+	method void moveLeft() {
+		if(x > 0) {
+			do Paddle.erasePaddle(x, y);
+			let x = x - 1;
+			do Paddle.drawPaddle(x, y);
+		}
+		return;
+	}
+	
+	/** move paddle accordingly 130 -> left, 132 -> right */
+	method void movePaddle(char key) {
+		if(key = 132) { do moveRight(); }
+		if(key = 130) { do moveLeft(); }
+		return;
+	}
+	
+	/** move padd to right */
+	method void moveRight() {
+		if(x < 19) {
+			do Paddle.erasePaddle(x, y);
+			let x = x + 1;
+			do Paddle.drawPaddle(x, y);
+		}
+		return;
+	}
+	
+
+	/** draws 16 * 16 pixels paddle Bitmap */
+	function void drawPaddle(int x, int y) {
+		var int location, memAddress;
+		let location = y * 32 * 16 + x;
+		let memAddress = 16384 + location;
+		if(memAddress > 24575) {
+			return;		// intentionally out of bound so don't poke
+		}
+		do Memory.poke(memAddress+0, -1);
+		do Memory.poke(memAddress+32, -1);
+		do Memory.poke(memAddress+64, -1);
+		do Memory.poke(memAddress+96, -1);
+		do Memory.poke(memAddress+128, -129);
+		do Memory.poke(memAddress+160, -129);
+		do Memory.poke(memAddress+192, -449);
+		do Memory.poke(memAddress+224, -321);
+		do Memory.poke(memAddress+256, -993);
+		do Memory.poke(memAddress+288, -2033);
+		do Memory.poke(memAddress+320, -2601);
+		do Memory.poke(memAddress+352, -8061);
+		do Memory.poke(memAddress+384, -11739);
+		do Memory.poke(memAddress+416, -28808);
+		do Memory.poke(memAddress+448, -31904);
+		do Memory.poke(memAddress+480, -7869);
+		return;
+	}
+	
+	
+	/** Erase 16 * 16 pixels Paddle Bitmap */
+	function void erasePaddle(int x, int y) {
+		var int location, memAddress;
+		let location = y * 32 * 16 + x;
+		let memAddress = 16384 + location;
+		if(memAddress > 24575) {
+			return;		// intentionally out of bound so don't poke
+		}
+		do Memory.poke(memAddress+0, -1);
+		do Memory.poke(memAddress+32, -1);
+		do Memory.poke(memAddress+64, -1);
+		do Memory.poke(memAddress+96, -1);
+		do Memory.poke(memAddress+128, -1);
+		do Memory.poke(memAddress+160, -1);
+		do Memory.poke(memAddress+192, -1);
+		do Memory.poke(memAddress+224, -1);
+		do Memory.poke(memAddress+256, -1);
+		do Memory.poke(memAddress+288, -1);
+		do Memory.poke(memAddress+320, -1);
+		do Memory.poke(memAddress+352, -1);
+		do Memory.poke(memAddress+384, -1);
+		do Memory.poke(memAddress+416, -1);
+		do Memory.poke(memAddress+448, -1);
+		do Memory.poke(memAddress+480, -1);
+		return;
+	}
+
+}

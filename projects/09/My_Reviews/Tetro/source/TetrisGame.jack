@@ -1,0 +1,305 @@
+/**
+ * Implements the Tetris game. Based off of source code in SquareGame.jack.
+ *
+ * Handles user input, screen output, and run loop.
+ */
+
+class TetrisGame {
+
+   field int moveDelay;  // delay before automatically moving down current block one mino
+   field TetrisGrid grid;  // tetris grid on which blocks are stacked
+   field int blockChoice;  // stores chosen block type
+   field int seed;  // random seed for game
+
+   constructor TetrisGame new(int seed) {
+      do drawTetroLogo();
+      do drawControlInstructions();
+      let grid = TetrisGrid.new(240, 20, 20, 10, 10);
+      do Output.moveCursor(2, 49);
+      do Output.printString("Score:");
+      do Output.moveCursor(0, 0);
+      do updateScore(0);
+      do grid.draw();
+      return this;
+   }
+
+   /** Runs the game: handles the user's inputs and moves the blocks accordingly */
+   method void run() {
+      var char key;  // the key currently pressed by the user
+      var boolean exit;  // whether to exit the game
+      var int timer;  // number of 10-loops elapsed
+      var int loopOutOfTen; // counter for 10 loops. Used so that timer doesn't overflow.
+      var int score;  // number of lines cleared
+      let exit = false;
+      let moveDelay = 750;
+
+      // wait for user to press Enter to begin run loop
+      do Output.moveCursor(0, 25);
+      do Output.printString("Press any key to start!");
+      let seed = waitForKeyPress();  // get seed from amount of time it takes for user to start game
+      
+      do Output.moveCursor(0, 25);
+      do Output.printString("                       ");  // clear start instructions
+      do Output.moveCursor(0, 0);
+
+      // Set seed and draw first block
+      do LCGRandom.setSeed(seed);
+      let blockChoice = LCGRandom.randRange(0, 6);
+      do grid.initializeBlockAtTop(blockChoice);
+      
+      while (~exit) {
+         
+         // waits for a key to be pressed
+         while (key = 0) {
+            // Update timers
+            let loopOutOfTen = loopOutOfTen + 1;
+            if (loopOutOfTen = 10) {
+               let timer = timer + 1;
+            }
+            let key = Keyboard.keyPressed();
+
+            // Check timers
+            if (timer > moveDelay) {
+               if (grid.canMoveBlockDown()) {
+                  do grid.moveBlockDown();
+               }
+               let timer = 0;
+               // Check if block is touching bottom of grid or top of another block
+               if (~grid.canMoveBlockDown()) {
+                  do updateGrid();
+                  if (checkGameOver()) {
+                     do Output.moveCursor(2, 18);
+                     do Output.printString("GAME OVER");
+                     do Output.moveCursor(0, 0);
+                     let exit = true;
+                  }
+                  let blockChoice = LCGRandom.randRange(0, 6);
+                  do grid.initializeBlockAtTop(blockChoice);
+               }
+            }
+            if (loopOutOfTen > 10) {
+               let loopOutOfTen = 0;
+            }
+         }
+
+         if (key = 81)  { let exit = true; }                 // q key
+         // up arrow
+         if ((key = 131) & (grid.canRotateRight())) {
+            do grid.rotateBlockRight();
+         }
+         // down arrow
+         if ((key = 133) & (grid.canMoveBlockDown())) {
+            do grid.moveBlockDown();
+         }
+         // right arrow
+         if ((key = 132) & (grid.canMoveBlockRight())) {
+            do grid.moveBlockRight();
+         }
+         // left arrow
+         if ((key = 130) & (grid.canMoveBlockLeft())) {
+            do grid.moveBlockLeft();
+         }
+         // space = move down all the way
+         if ((key = 32) & (grid.canMoveBlockDown())) {
+            do grid.moveBlockDownUntilCollision();
+         }
+         // P = pause
+         if ((key = 80)) {
+            do Sys.wait(1000);  // wait for user to release space
+            let key = 0;
+            while ((key = 0)) {
+               let key = Keyboard.keyPressed();
+            }
+            let key = 133;
+         }
+
+         // waits for the key to be released
+         while (~(key = 0)) {
+            // Update timers
+            let loopOutOfTen = loopOutOfTen + 1;
+            if (loopOutOfTen = 10) {
+               let timer = timer + 1;
+            }
+
+            let key = Keyboard.keyPressed();
+
+            // Check timers
+            if (timer > moveDelay) {
+               if (grid.canMoveBlockDown()){
+                  do grid.moveBlockDown();
+               }
+               let timer = 0;
+               // Check if block is touching bottom of grid or top of another block
+               if (~grid.canMoveBlockDown()) {
+                  do updateGrid();
+                  if (checkGameOver()) {
+                     do Output.moveCursor(2, 18);
+                     do Output.printString("GAME OVER");
+                     do Output.moveCursor(0, 0);
+                     let exit = true;
+                  }
+                  let blockChoice = LCGRandom.randRange(0, 6);
+                  do grid.initializeBlockAtTop(blockChoice);
+               }
+            }
+            if (loopOutOfTen > 10) {
+               let loopOutOfTen = 0;
+            }
+         }
+         let key = 0;
+     } // while
+     return;
+   }
+
+   /** Waits for user to press any key, returns number of loops % 1000 required */
+   method int waitForKeyPress() {
+      var char key;
+      var int nLoops;
+      while (key = 0) {
+         let key = Keyboard.keyPressed();
+         let nLoops = nLoops + 1;
+         if (nLoops = 1000) {
+            let nLoops = 0;
+         }
+      }
+      let key = 0;
+      do Sys.wait(500);  // wait for user to release key in case it affects game
+      return nLoops;
+   }
+
+   /** Run all processes to clear lines */
+   method void updateGrid() {
+      do grid.updatePlacedBlockMap();
+      do grid.clearLines();
+      do updateScore(grid.getLinesCleared());
+      // Make it faster every time we clear lines
+      if (moveDelay > 50) {
+         let moveDelay = moveDelay - 10;
+      }
+      do Sys.wait(moveDelay);
+      return;
+   }
+
+   /** Update score tally to the right of the grid */
+   method void updateScore(int score) {
+      do Output.moveCursor(2, 56);
+      do Output.printInt(score);
+      do Output.moveCursor(0, 0);
+      return;
+   }
+
+   /** Check for game over */
+   method boolean checkGameOver() {
+      if (grid.getHighestYMino() = 0) {
+         return true;
+      }
+      return false;
+   }
+
+   /** Draw Tetro logo */
+   method void drawTetroLogo() {
+      // T
+      do drawMino(10, 20, 10);
+      do drawMino(20, 10, 10);
+      do drawMino(30, 10, 10);
+      do drawMino(40, 20, 10);
+      do drawMino(50, 10, 10);
+      do drawMino(30, 20, 10);
+      do drawMino(30, 30, 10);
+      do drawMino(30, 40, 10);
+      do drawMino(30, 50, 10);
+      // E
+      do drawMino(60, 50, 10);
+      do drawMino(70, 50, 10);
+      do drawMino(50, 60, 10);
+      do drawMino(50, 70, 10);
+      do drawMino(60, 70, 10);
+      do drawMino(50, 80, 10);
+      do drawMino(60, 90, 10);
+      do drawMino(70, 90, 10);
+      // T
+      do drawMino(90, 100, 10);
+      do drawMino(100, 90, 10);
+      do drawMino(110, 90, 10);
+      do drawMino(120, 100, 10);
+      do drawMino(130, 90, 10);
+      do drawMino(110, 100, 10);
+      do drawMino(110, 110, 10);
+      do drawMino(110, 120, 10);
+      do drawMino(110, 130, 10);
+      // R
+      do drawMino(140, 130, 10);
+      do drawMino(150, 130, 10);
+      do drawMino(130, 140, 10);
+      do drawMino(160, 140, 10);
+      do drawMino(130, 150, 10);
+      do drawMino(140, 150, 10);
+      do drawMino(150, 150, 10);
+      do drawMino(130, 160, 10);
+      do drawMino(160, 160, 10);
+      do drawMino(140, 170, 10);
+      do drawMino(160, 170, 10);
+      // O
+      do drawMino(190, 170, 10);
+      do drawMino(200, 170, 10);
+      do drawMino(180, 180, 10);
+      do drawMino(210, 180, 10);
+      do drawMino(180, 190, 10);
+      do drawMino(210, 190, 10);
+      do drawMino(180, 200, 10);
+      do drawMino(210, 200, 10);
+      do drawMino(190, 210, 10);
+      do drawMino(200, 210, 10);
+      return;
+   }
+
+   /** Draw Block */
+   method void drawMino(int x, int y, int minoSize) {
+      do Screen.setColor(true);
+      do Screen.drawRectangle((x + 1),
+                              (y + 1),
+                              (x - 1) + minoSize,
+                              (y - 1) + minoSize);
+      return;
+   }
+
+   /** Draw control instructions */
+   method void drawControlInstructions() {
+      do Output.moveCursor(5, 44);
+      do Output.printString("--------------------");
+      do Output.moveCursor(6, 47);
+      do Output.printString("INSTRUCTIONS");
+
+      do Output.moveCursor(8, 44);
+      do Output.printString("Move:    Left,Right,");
+      do Output.moveCursor(9, 44);
+      do Output.printString("         and Down");
+      do Output.moveCursor(10, 44);
+      do Output.printString("         Arrows");
+
+      do Output.moveCursor(12, 44);
+      do Output.printString("Rotate:  Up Arrow");
+
+      do Output.moveCursor(14, 44);
+      do Output.printString("Instant");
+      do Output.moveCursor(15, 44);
+      do Output.printString("   Down: Space");
+
+      do Output.moveCursor(17, 44);
+      do Output.printString("Pause:   P");
+
+      do Output.moveCursor(19, 44);
+      do Output.printString("Quit:    Q");
+      return;
+   }
+
+   /** Disposes this game. */
+   method void dispose() {
+      do grid.dispose();
+      do Memory.deAlloc(this);
+      return;
+   }
+}
+
+
+

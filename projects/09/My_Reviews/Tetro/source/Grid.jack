@@ -1,0 +1,31 @@
+/* Library of functionality to draw grids. */
+
+class Grid {
+
+   /* Draw a grid of boxes. x and y locate the upper left corner of the grid.
+    * Height and width give the number of boxes in vertical and horizontal
+    * direction, respectively. boxSize is the height & width of each box in pixels.
+    */
+   function void draw(int x, int y, int height, int width, int boxSize) {
+        var int i, j;
+        while (i < width) {
+            let j = 0;
+            while (j < height) {
+                do Screen.setColor(true);
+                do Screen.drawRectangle(x + (i * boxSize),
+                                        y + (j * boxSize),
+                                        x + ((i + 1) * boxSize),
+                                        y + ((j + 1) * boxSize));
+                do Screen.setColor(false);
+                do Screen.drawRectangle((x + 1) + (i * boxSize),
+                                        (y + 1) + (j * boxSize),
+                                        (x - 1) + ((i + 1) * boxSize),
+                                        (y - 1) + ((j + 1) * boxSize));
+                do Screen.setColor(true);
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+        return;
+    }
+}

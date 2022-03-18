@@ -1,0 +1,324 @@
+/** Tetris block object. All blocks, regardless of shape have
+ * the same methods so are all defined in a single class, but
+ * each has different logic in the constructor.
+ */
+
+ class Block {
+
+   field int blockType;  // type of block, ranging from 0 to 6, inclusive
+   field Matrix blockShape;  // Matrix describing block shape
+   field int x;  // x position of block
+   field int y;  // y position of block
+   field int minoSize;  // size in pixels of each mino in the block
+   field int xMino;  // x position of block in grid in minos
+   field int yMino;  // y position of block in grid in minos
+   field int size;  // height and width of block subgrid
+
+   /* Construct a new block of aBlockType with upper left corner at aX,aY */
+   constructor Block new(int aX, int aY, int aBlockType, int aMinoSize) {
+      let x = aX;
+      let y = aY;
+      let blockType = aBlockType;
+      let minoSize = aMinoSize;
+      // 0 = Block Type I
+      //     xxxx   (each x is a single mino)
+      //
+      if (blockType = 0) {
+         let size = 4;
+         let blockShape = Matrix.new(size, size);
+         do blockShape.set(0, 1, 1);  // Set 0,1 to 1 (mino exists at 0,1)
+         do blockShape.set(1, 1, 1);  // Set 1,1 to 1 (mino exists at 1,1)
+         do blockShape.set(2, 1, 1);
+         do blockShape.set(3, 1, 1);
+      }
+      // 1 = Block Type O
+      //     xx
+      //     xx
+      if (blockType = 1) {
+         let size = 2;
+         let blockShape = Matrix.new(size, size);
+         do blockShape.set(0, 0, 1);
+         do blockShape.set(1, 0, 1);
+         do blockShape.set(0, 1, 1);
+         do blockShape.set(1, 1, 1);
+      }
+      // 2 = Block Type T
+      //     xxx
+      //      x
+      if (blockType = 2) {
+         let size = 3;
+         let blockShape = Matrix.new(size, size);
+         do blockShape.set(0, 0, 1);
+         do blockShape.set(1, 0, 1);
+         do blockShape.set(2, 0, 1);
+         do blockShape.set(1, 1, 1);
+      }
+      // 3 = Block Type S
+      //      xx
+      //     xx
+      if (blockType = 3) {
+         let size = 3;
+         let blockShape = Matrix.new(size, size);
+         do blockShape.set(1, 0, 1);
+         do blockShape.set(2, 0, 1);
+         do blockShape.set(0, 1, 1);
+         do blockShape.set(1, 1, 1);
+      }
+      // 4 = Block Type Z
+      //     xx
+      //      xx
+      if (blockType = 4) {
+         let size = 3;
+         let blockShape = Matrix.new(size, size);
+         do blockShape.set(0, 0, 1);
+         do blockShape.set(1, 0, 1);
+         do blockShape.set(1, 1, 1);
+         do blockShape.set(2, 1, 1);
+      }
+      // 5 = Block Type J
+      //     x
+      //     xxx
+      if (blockType = 5) {
+         let size = 3;
+         let blockShape = Matrix.new(size, size);
+         do blockShape.set(0, 0, 1);
+         do blockShape.set(0, 1, 1);
+         do blockShape.set(1, 1, 1);
+         do blockShape.set(2, 1, 1);
+      }
+      // 6 = Block Type L
+      //       x
+      //     xxx
+      if (blockType = 6) {
+         let size = 3;
+         let blockShape = Matrix.new(size, size);
+         do blockShape.set(2, 0, 1);
+         do blockShape.set(0, 1, 1);
+         do blockShape.set(1, 1, 1);
+         do blockShape.set(2, 1, 1);
+      }
+      // If block type not in range 0-6, raise error
+      if ((blockType < 0) | (blockType > 6)) {
+         do Screen.clearScreen();
+         do Output.printString("ValueError: Block.blockType is ");
+         do Output.printInt(blockType);
+         do Output.printString(" but should be between 0 and 6, inclusive.");
+         do Sys.halt();
+      }
+      return this;
+   }
+
+   /* draw the block to the screen */
+   method void draw() {
+      // Loop through array describing block shape and draw each mino if present
+      var int minoExists;
+      var int i, j;
+      do Screen.setColor(true);
+      while (i < size) {
+         let j = 0;
+         while (j < size) {
+            let minoExists = blockShape.get(i, j);
+            if (minoExists = 1) {
+               // Here we draw the squares of the tetris block
+               // Each square has a white border 1 pixel thick
+               do Screen.drawRectangle((x + 1) + (i * minoSize),
+                                       (y + 1) + (j * minoSize),
+                                       (x - 1) + ((i + 1) * minoSize),
+                                       (y - 1) + ((j + 1) * minoSize));
+            }
+            let j = j + 1;
+         }
+         let i = i + 1;
+      }
+      return;
+   }
+
+   /* erase the block from the screen */
+   method void erase() {
+      // Loop through array describing block shape and erase each mino if present
+      var int minoExists;
+      var int i, j;
+      do Screen.setColor(false);
+      while (i < size) {
+         let j = 0;
+         while (j < size) {
+            let minoExists = blockShape.get(i, j);
+            if (minoExists = 1) {
+               // Here we erase the squares of the tetris block
+               // Each square has a white border 1 pixel thick
+               do Screen.drawRectangle((x + 1) + (i * minoSize),
+                                       (y + 1) + (j * minoSize),
+                                       (x - 1) + ((i + 1) * minoSize),
+                                       (y - 1) + ((j + 1) * minoSize));
+            }
+            let j = j + 1;
+         }
+         let i = i + 1;
+      }
+      do Screen.setColor(true);
+      return;
+   }
+
+   /* Rotate block to the right (clockwise) 90 degrees */
+   method void rotateRight() {
+      do erase();
+      do blockShape.rotateRight();
+      do draw();
+      return;
+   }
+
+   /* Move block to the right by one mino */
+   method void moveRight() {
+      do erase();
+      let x = x + minoSize;
+      let xMino = xMino + 1;
+      do draw();
+      return;
+   }
+
+   /* Move block down by one mino */
+   method void moveDown() {
+      do erase();
+      let y = y + minoSize;
+      let yMino = yMino + 1;
+      do draw();
+      return;
+   }
+
+   /* Move block down by N minos */
+   method void moveNDown(int N) {
+      do erase();
+      let y = y + (N * minoSize);
+      let yMino = yMino + N;
+      do draw();
+      return;
+   }
+
+   /* Move block to the left by one mino */
+   method void moveLeft() {
+      do erase();
+      let x = x - minoSize;
+      let xMino = xMino - 1;
+      do draw();
+      return;
+   }
+
+   /* Getter method for blockShape */
+   method int getBlockShape() {
+      return blockShape;
+   }
+
+   /* Getter method for size */
+   method int getBlockSize() {
+      return size;
+   }
+
+   /* Getter method for x */
+   method int getX() {
+      return x;
+   }
+
+   /* Setter method for x */
+   method void setX(int newX) {
+      let x = newX;
+      return;
+   }
+
+   /* Getter method for y */
+   method int getY() {
+      return y;
+   }
+
+   /* Setter method for y */
+   method void setY(int newY) {
+      let y = newY;
+      return;
+   }
+
+   /* Getter method for xMino */
+   method int getXMino() {
+      return xMino;
+   }
+
+   /* Setter method for xMino */
+   method void setXMino(int newXMino) {
+      let xMino = newXMino;
+      return;
+   }
+
+   /* Getter method for yMino */
+   method int getYMino() {
+      return yMino;
+   }
+
+   /* Setter method for yMino */
+   method void setYMino(int newYMino) {
+      let yMino = newYMino;
+      return;
+   }
+
+   /* Calculate where bottom of block is in yMinos */
+   method int getBottomYMino() {
+      var int i,j;
+      var int minoExists;
+      var int lowestMinoInBlock;
+      while (j < size) {
+         let i = 0;
+         while (i < size) {
+            let minoExists = blockShape.get(i, j);
+            if (minoExists = 1) {
+               let lowestMinoInBlock = j;
+            }
+            let i = i + 1;
+         }
+         let j = j + 1;
+      }
+      return getYMino() + lowestMinoInBlock;
+   }
+
+   /* Calculate where right of block is in xMinos */
+   method int getRightXMino() {
+      var int i,j;
+      var int minoExists;
+      var int mostRightMinoInBlock;
+      while (i < size) {
+         let j = 0;
+         while (j < size) {
+            let minoExists = blockShape.get(i, j);
+            if (minoExists = 1) {
+               let mostRightMinoInBlock = i;
+            }
+            let j = j + 1;
+         }
+         let i = i + 1;
+      }
+      return getXMino() + mostRightMinoInBlock;
+   }
+
+   /* Calculate where left of block is in xMinos */
+   method int getLeftXMino() {
+      var int i,j;
+      var int minoExists;
+      var int mostLeftMinoInBlock;
+      let i = size - 1;
+      while (i > -1) {
+         let j = 0;
+         while (j < size) {
+            let minoExists = blockShape.get(i, j);
+            if (minoExists = 1) {
+               let mostLeftMinoInBlock = i;
+            }
+            let j = j + 1;
+         }
+         let i = i - 1;
+      }
+      return getXMino() + mostLeftMinoInBlock;
+   }
+
+   /** Disposes this block */
+   method void dispose() {
+      do blockShape.dispose();
+      do Memory.deAlloc(this);
+      return;
+   }
+ }

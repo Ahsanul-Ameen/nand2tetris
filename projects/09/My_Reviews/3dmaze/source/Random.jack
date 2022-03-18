@@ -1,0 +1,44 @@
+// This implements a simple pseudo-random number generator
+
+class Random {
+
+    field int randnum;
+
+    constructor Random new(int seed) {
+        let randnum = seed;
+        return this;
+    }
+
+    // Construct XOR from NANDs
+    // https://en.wikipedia.org/wiki/XOR_gate
+    function int xor(int A, int B) {
+        return (A | B) & (~A | ~B);
+    }
+
+    /** Return the next pseudo-random number 
+        Using PRNG developed by George Marsaglia described here:
+        http://www.retroprogramming.com/2017/07/xorshift-pseudorandom-numbers-in-z80.html
+    */
+    method int next() {
+        let randnum = Random.xor(randnum, randnum * 2 * 2 * 2 * 2 * 2 * 2 * 2);
+        let randnum = Random.xor(randnum, randnum / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2 / 2);
+        let randnum = Random.xor(randnum, randnum * 2 * 2 * 2 * 2 * 2 * 2 * 2 * 2);
+        // Ensure we always return a positive number
+        if (randnum < 0) {return -randnum;} 
+        else {return randnum;}
+    }
+
+    // Return next number in a range (number will be 0 <= rand < r)
+    method int nextr(int r) {
+        var int rand, res;
+        let rand = next();
+        let res = rand / r;
+        return rand - (res * r); // Calc remainder in r range
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+}

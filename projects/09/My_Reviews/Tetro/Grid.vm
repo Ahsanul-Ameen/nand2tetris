@@ -1,0 +1,100 @@
+function Grid.draw 2
+label WHILE_EXP0
+push local 0
+push argument 3
+lt
+not
+if-goto WHILE_END0
+push constant 0
+pop local 1
+label WHILE_EXP1
+push local 1
+push argument 2
+lt
+not
+if-goto WHILE_END1
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push argument 0
+push local 0
+push argument 4
+call Math.multiply 2
+add
+push argument 1
+push local 1
+push argument 4
+call Math.multiply 2
+add
+push argument 0
+push local 0
+push constant 1
+add
+push argument 4
+call Math.multiply 2
+add
+push argument 1
+push local 1
+push constant 1
+add
+push argument 4
+call Math.multiply 2
+add
+call Screen.drawRectangle 4
+pop temp 0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push argument 0
+push constant 1
+add
+push local 0
+push argument 4
+call Math.multiply 2
+add
+push argument 1
+push constant 1
+add
+push local 1
+push argument 4
+call Math.multiply 2
+add
+push argument 0
+push constant 1
+sub
+push local 0
+push constant 1
+add
+push argument 4
+call Math.multiply 2
+add
+push argument 1
+push constant 1
+sub
+push local 1
+push constant 1
+add
+push argument 4
+call Math.multiply 2
+add
+call Screen.drawRectangle 4
+pop temp 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP1
+label WHILE_END1
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return

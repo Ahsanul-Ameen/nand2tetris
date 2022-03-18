@@ -1,0 +1,217 @@
+/** Implements a graphical Alien. */
+
+class Alien {
+	field int tx, ty; // top left screen location of the Alien's bitmap
+   	field int type; // any of the three types of alien 1, 2 or 3. Any other type will erase this alien
+	
+	/** Constructs a new Alien with a given location and radius. */
+	constructor Alien new (int Ax, int Ay, int Atype) {
+		let tx = Ax;
+		let ty = Ay;
+		let type = Atype;
+		do drawAlien();
+		return this;
+	}
+  
+	/** Disposes this Alien. */
+	method void dispose() {
+		let type = 4;
+		do Alien.drawDestroy(tx, ty);
+		do Sys.wait(50);
+		do Alien.eraseAlien(tx, ty);
+		do Memory.deAlloc(this);
+		return;
+	}
+	
+	/** Accessors */
+	method int getX() { return tx; }
+	method int getY() { return ty; }
+	method int getType() { return type; }
+
+	/** Moves the Alien down by 16 pixels.
+		Returns true if possible to move down 
+		Called for valid types
+	*/
+	method boolean moveDown() {
+		if(type > 3) { return true; }	// no need to check out further
+		if(ty < 14) {
+			do Alien.eraseAlien(tx, ty);
+			let ty = ty + 1;
+			do drawAlien();
+			return true;
+		} else { 
+			return false;
+		}
+	}
+	
+	/** Moves the Alien Left by 16 pixels.
+		Returns true if possible to move left 
+		Called for valid types
+	*/
+	method boolean moveLeft() {
+		if(tx > 0) {
+			do Alien.eraseAlien(tx, ty);
+			let tx = tx - 1;
+			do drawAlien();
+			return true;
+		} else { return false; }
+	}
+	
+	/** Moves the Alien Right by 16 pixels.
+		Returns true if possible to move right 
+		Called for valid types
+	*/
+	method boolean moveRight() {
+		if(tx < 19) {
+			do Alien.eraseAlien(tx, ty);
+			let tx = tx + 1;
+			do drawAlien();
+			return true;
+		} else { return false; }
+	}
+	
+	/** Draws an alien of particular type or erase */
+	method void drawAlien() {
+		if(type = 1) { do Alien.drawAlienOne(tx, ty); } 
+		if (type = 2) { do Alien.drawAlienTwo(tx, ty); }
+		if (type = 3) { do Alien.drawAlienThree(tx, ty); } 
+		if (type > 3) { do Alien.eraseAlien(tx, ty); }
+		return;
+	}
+
+	/** 16 * 16 pixels Alien Bitmap of type 1 */
+	function void drawAlienOne(int x, int y) {
+		var int location, memAddress;
+		let location = y * 32 * 16 + x;
+		let memAddress = 16384 + location;
+		if(memAddress > 24575) {
+			return;		// intentionally out of bound so don't poke
+		}
+		do Memory.poke(memAddress+0, -1);
+		do Memory.poke(memAddress+32, -1);
+		do Memory.poke(memAddress+64, -1);
+		do Memory.poke(memAddress+96, -1);
+		do Memory.poke(memAddress+128, -1);
+		do Memory.poke(memAddress+160, -1041);
+		do Memory.poke(memAddress+192, -545);
+		do Memory.poke(memAddress+224, -2033);
+		do Memory.poke(memAddress+256, -1489);
+		do Memory.poke(memAddress+288, -4089);
+		do Memory.poke(memAddress+320, -4645);
+		do Memory.poke(memAddress+352, -2633);
+		do Memory.poke(memAddress+384, -1);
+		do Memory.poke(memAddress+416, -1);
+		do Memory.poke(memAddress+448, -1);
+		do Memory.poke(memAddress+480, -1);
+		return;
+	}
+	
+	/** 16 * 16 pixels Alien Bitmap of type 2 */
+	function void drawAlienTwo(int x, int y) {
+		var int location, memAddress;
+		let location = y * 32 * 16 + x;
+		let memAddress = 16384 + location;
+		if(memAddress > 24575) {
+			return;		// intentionally out of bound so don't poke
+		}
+		do Memory.poke(memAddress+0, -1);
+		do Memory.poke(memAddress+32, -1);
+		do Memory.poke(memAddress+64, -1);
+		do Memory.poke(memAddress+96, -1);
+		do Memory.poke(memAddress+128, -545);
+		do Memory.poke(memAddress+160, -321);
+		do Memory.poke(memAddress+192, -993);
+		do Memory.poke(memAddress+224, -2033);
+		do Memory.poke(memAddress+256, -1489);
+		do Memory.poke(memAddress+288, -4089);
+		do Memory.poke(memAddress+320, -6133);
+		do Memory.poke(memAddress+352, -5141);
+		do Memory.poke(memAddress+384, -4965);
+		do Memory.poke(memAddress+416, -1);
+		do Memory.poke(memAddress+448, -1);
+		do Memory.poke(memAddress+480, -1);
+		return;
+	}
+	
+	/** 16 * 16 pixels Alien Bitmap of type 2 */
+	function void drawAlienThree(int x, int y) {
+		var int location, memAddress;
+		let location = y * 32 * 16 + x;
+		let memAddress = 16384 + location;
+		if(memAddress > 24575) {
+			return;		// intentionally out of bound so don't poke
+		}
+		do Memory.poke(memAddress+0, -1);
+		do Memory.poke(memAddress+32, -1);
+		do Memory.poke(memAddress+64, -1);
+		do Memory.poke(memAddress+96, -1);
+		do Memory.poke(memAddress+128, -1);
+		do Memory.poke(memAddress+160, -897);
+		do Memory.poke(memAddress+192, -4065);
+		do Memory.poke(memAddress+224, -8177);
+		do Memory.poke(memAddress+256, -14649);
+		do Memory.poke(memAddress+288, -16377);
+		do Memory.poke(memAddress+320, -3169);
+		do Memory.poke(memAddress+352, -13209);
+		do Memory.poke(memAddress+384, 16377);
+		do Memory.poke(memAddress+416, -1);
+		do Memory.poke(memAddress+448, -1);
+		do Memory.poke(memAddress+480, -1);
+		return;
+	}
+	
+	/** Erase 16 * 16 pixels Alien Bitmap of any type */
+	function void eraseAlien(int x, int y) {
+		var int location, memAddress;
+		let location = y * 32 * 16 + x;
+		let memAddress = 16384 + location;
+		if(memAddress > 24575) {
+			return;		// intentionally out of bound so don't poke
+		}
+		do Memory.poke(memAddress+0, -1);
+		do Memory.poke(memAddress+32, -1);
+		do Memory.poke(memAddress+64, -1);
+		do Memory.poke(memAddress+96, -1);
+		do Memory.poke(memAddress+128, -1);
+		do Memory.poke(memAddress+160, -1);
+		do Memory.poke(memAddress+192, -1);
+		do Memory.poke(memAddress+224, -1);
+		do Memory.poke(memAddress+256, -1);
+		do Memory.poke(memAddress+288, -1);
+		do Memory.poke(memAddress+320, -1);
+		do Memory.poke(memAddress+352, -1);
+		do Memory.poke(memAddress+384, -1);
+		do Memory.poke(memAddress+416, -1);
+		do Memory.poke(memAddress+448, -1);
+		do Memory.poke(memAddress+480, -1);
+		return;
+	}
+	
+	/** Destroy 16 * 16 pixels Alien Bitmap of any type */
+	function void drawDestroy(int x, int y) {
+		var int location, memAddress;
+		let location = y * 32 * 16 + x;
+		let memAddress = 16384 + location;
+		if(memAddress > 24575) {
+			return;		// intentionally out of bound so don't poke
+		}
+		do Memory.poke(memAddress+0, -1);
+		do Memory.poke(memAddress+32, -257);
+		do Memory.poke(memAddress+64, -4753);
+		do Memory.poke(memAddress+96, -2081);
+		do Memory.poke(memAddress+128, 32765);
+		do Memory.poke(memAddress+160, -16389);
+		do Memory.poke(memAddress+192, -1);
+		do Memory.poke(memAddress+224, 32766);
+		do Memory.poke(memAddress+256, -1);
+		do Memory.poke(memAddress+288, -5);
+		do Memory.poke(memAddress+320, -8195);
+		do Memory.poke(memAddress+352, -16401);
+		do Memory.poke(memAddress+384, -1353);
+		do Memory.poke(memAddress+416, -2177);
+		do Memory.poke(memAddress+448, -1);
+		do Memory.poke(memAddress+480, -1);
+		return;
+	}
+	
+}

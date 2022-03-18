@@ -1,0 +1,39 @@
+/**
+ * Random
+ * a static class producing pseudo-random integers
+ */
+class Random
+{
+    static int current; // current number
+    function void init(int seed) // init with seed
+    {
+        let current = seed;
+        return;
+    }
+    function int next() // return random number between 0 and 32767
+    {
+        var int a, b, q, r, m, t;
+        
+        // param
+        let a = 15859;
+        let b = 32749;
+        let m = 32767;
+
+        let q = m / a;
+        let r = m - (q * a);
+        let t = current / q;
+
+        let current = (a * (current - (t * q))) - (r * t);
+        if (current < 0)
+        {
+            let current = current + m;
+        }
+
+        return current;
+    }
+    function int random(int max) // return random number between 0 and max - 1
+    {
+        var int t; let t = Random.next();
+        return t - ((t / max) * max);
+    }
+}

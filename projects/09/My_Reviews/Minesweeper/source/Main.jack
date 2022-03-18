@@ -1,0 +1,184 @@
+/**
+ * Main
+ * the main class. Initiate the game logic
+ */
+class Main
+{
+    /**
+     * printStr
+     * printString that does not leak memory
+     */
+    function void printStr(String str)
+    {
+        do Output.printString(str);
+        do str.dispose();
+        return;
+    }
+
+    /**
+     * main
+     * the main function. Simply starts the game logic
+     */
+    function void main()
+    {
+        var boolean firstRun, contLogic;
+        var char curKey; // current key
+        var int maxMines;
+        var MineGrid grid; // the grid
+        var int row, col, mines; // number of row, column and mines
+        var int seed;
+
+        do BitmapProvider.init(); // init bitmaps
+
+        // welcome screen
+        do Main.printStr("Welcome to the Minesweeper game!"); do Output.println(); do Output.println();
+        do Main.printStr("Movements: (read before you start!)"); do Output.println();
+        do Main.printStr("A/W/S/D/arrow keys = left/up/down/right"); do Output.println();
+        do Main.printStr("F = flag/unflag current block"); do Output.println();
+        do Main.printStr("Q = quit"); do Output.println();
+        do Main.printStr("enter/space = open current block"); do Output.println(); do Output.println();
+        do Main.printStr("Parameter Setting:"); do Output.println();
+        let row = 16;
+        while (row > 15)
+        {
+            let row = Keyboard.readInt("row number (0-15) = ");
+        }
+        let col = 33;
+        while (col > 32)
+        {
+            let col = Keyboard.readInt("column number (0-32) = ");
+        }
+        let maxMines = (row * col) - 1;
+        let mines = 10000;
+        while (mines > maxMines)
+        {
+            do Main.printStr("mines number (0-"); do Output.printInt(maxMines);
+            let mines = Keyboard.readInt(") = ");
+        }
+        let seed = 20001;
+        while (seed > 20000)
+        {
+            let seed = Keyboard.readInt("start level (0-20000) = ");
+        }
+
+        do Random.init(seed); // init random
+
+        while (true) // retry loop
+        {
+            // initialize
+            let grid = MineGrid.new(row, col, mines);
+            let firstRun = true;
+            let contLogic = true;
+    
+            do grid.draw();
+    
+            // main logic loop
+            while (contLogic)
+            {
+                // fetch key until pressed
+                while (curKey = 0)
+                {
+                    let curKey = Keyboard.keyPressed();
+                }
+    
+                // movement
+                if ((curKey = 87) | (curKey = 131)) // W or up
+                {
+                    do grid.moveUp();
+                }
+                if ((curKey = 65) | (curKey = 130)) // A or left
+                {
+                    do grid.moveLeft();
+                }
+                if ((curKey = 83) | (curKey = 133)) // S or down
+                {
+                    do grid.moveDown();
+                }
+                if ((curKey = 68) | (curKey = 132)) // D or right
+                {
+                    do grid.moveRight();
+                }
+                if (curKey = 81) // Q
+                {
+                    do Sys.halt();
+                }
+                if (curKey = 70) // F
+                {
+                    do grid.flagCurrent();
+                }
+                if ((curKey = 32) | (curKey = 128)) // space or enter
+                {
+                    if (firstRun)
+                    {
+                        let firstRun = false;
+                        do grid.initiateMines(); // initialize mines
+                    }
+    
+                    // open current block
+                    do grid.openCurrent();
+                }
+
+                let contLogic = grid.draw();
+    
+                // redraw and dispose key in same interval
+                while (contLogic & (~(curKey = 0)))
+                {
+                    let curKey = Keyboard.keyPressed();
+                }
+            }
+
+            do grid.dispose();
+
+            // ask for retry
+            while (~(curKey = 0))
+            {
+                let curKey = Keyboard.keyPressed();
+            }
+            do Main.printStr("Retry? (Y/N) ");
+            if (~(Keyboard.readChar() = 89)) // Y
+            {
+                do Sys.halt();
+            }
+        }
+        return;
+    }
+
+    /**
+     * testBitmap
+     * test bitmap
+     */
+    function void testBitmap()
+    {
+        var MineBlock temp;
+        var int i;
+        let i = 0;
+        while (i < 12)
+        {
+            if (i < 9)
+            {
+                let temp = MineBlock.new(i * 16, 100, i);
+                do temp.setVisible();
+            }
+            else
+            {
+                let temp = MineBlock.new(i * 16, 100, 0);
+                if (i = 10)
+                {
+                    do temp.flipFlag();
+                }
+                else
+                {
+                    if (i = 11)
+                    {
+                        do temp.setMine(true);
+                        do temp.setVisible();
+                    }
+                }
+            }
+            do temp.draw();
+            let i = i + 1;
+        }
+        return;
+    }
+}
+

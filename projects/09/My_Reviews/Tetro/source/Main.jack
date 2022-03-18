@@ -1,0 +1,40 @@
+/** 
+ * Run unit tests, initialize a new Tetro game, and start the game loop. 
+ *
+ * Author: Jon Strutz (github: jonstrutz11)
+ *
+ * ------------------------------------------------------------------
+ * ---                         Disclaimer                         ---
+ * ------------------------------------------------------------------
+ * The following classes ARE NOT my work:
+ * - LCGRandom           (by Rowan Limb)
+ * - LCGRandomUtils      (by Rowan Limb, renamed from Utils.jack)
+ * - UnitTest            (by Jackson Ray Hamilton)
+ * - Tests               (by Jackson Ray Hamilton)
+ * - Out                 (by Jackson Ray Hamilton)
+ * - Strings             (by Jackson Ray Hamilton)
+ *
+ * All other classes ARE my work:
+ * - Main
+ * - Block
+ * - BlockTests
+ * - Matrix
+ * - TetrisGame
+ * - TetrisGrid
+ * ------------------------------------------------------------------
+ *
+ * Overall class hiearchy is Main -> TetrisGame -> TetrisGrid -> Block -> Matrix
+ */
+
+class Main {
+    function void main() {
+        var TetrisGame game;
+        var int randomSeed;
+        let randomSeed = 2;
+        //do Tests.runTests();
+        let game = TetrisGame.new(randomSeed);
+        do game.run();
+        do game.dispose();
+        return;
+    }
+}

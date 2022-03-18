@@ -1,0 +1,353 @@
+/** Unittests for Block class */
+
+class BlockTests {
+
+    function void runAssertionTests() {
+        do BlockTests.testBlockExists();
+        return;
+    }
+
+    function void runVisualTests() {
+        do BlockTests.testDrawBlockTypeI();
+        do BlockTests.testDrawBlockTypeO();
+        do BlockTests.testDrawBlockTypeT();
+        do BlockTests.testDrawBlockTypeS();
+        do BlockTests.testDrawBlockTypeZ();
+        do BlockTests.testDrawBlockTypeJ();
+        do BlockTests.testDrawBlockTypeL();
+        do BlockTests.testMoveBlock();
+        return;
+    }
+
+    /* ----------------------------------------------------------
+     * ---                   Assertion Tests                  ---
+       ---------------------------------------------------------- */
+
+    function void testBlockExists() {
+        var Block block;
+        let block = Block.new(0, 0, 0, 10);
+        do UnitTest.assertTrue("Pointer to block not null after constructed.", ~(block = null));
+        do block.dispose();
+        return;
+    }
+
+    function void testGetBlockSize() {
+        var Block block;
+        let block = Block.new(0, 0, 0, 10);
+        do UnitTest.assertTrue("Type I block has size, 4.", (block.getBlockSize() = 4));
+        let block = Block.new(0, 0, 1, 10);
+        do UnitTest.assertTrue("Type O block has size, 2.", (block.getBlockSize() = 2));
+        let block = Block.new(0, 0, 2, 10);
+        do UnitTest.assertTrue("Type T block has size, 3.", (block.getBlockSize() = 3));
+        let block = Block.new(0, 0, 3, 10);
+        do UnitTest.assertTrue("Type S block has size, 3.", (block.getBlockSize() = 3));
+        let block = Block.new(0, 0, 4, 10);
+        do UnitTest.assertTrue("Type Z block has size, 3.", (block.getBlockSize() = 3));
+        let block = Block.new(0, 0, 5, 10);
+        do UnitTest.assertTrue("Type J block has size, 3.", (block.getBlockSize() = 3));
+        let block = Block.new(0, 0, 6, 10);
+        do UnitTest.assertTrue("Type L block has size, 3.", (block.getBlockSize() = 3));
+        do block.dispose();
+        return;
+    }
+
+    /* ----------------------------------------------------------
+     * ---                    Visual Tests                    ---
+       ---------------------------------------------------------- */
+
+    function void testDrawBlockTypeI() {
+        var Block block;
+        let block = Block.new(50, 50, 0, 10);  // 0 = I
+        do Output.printString("Block Type I (0 deg)");
+        do Grid.draw(50, 50, block.getBlockSize(), block.getBlockSize(), 10);
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type I (90 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type I (180 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type I (270 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type I (360 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Screen.clearScreen();
+        do Output.moveCursor(0, 0);
+        do block.dispose();
+        return;
+    }
+
+    function void testDrawBlockTypeO() {
+        var Block block;
+        let block = Block.new(50, 50, 1, 10);  // 1 = O
+        do Output.printString("Block Type O (0 deg)");
+        do Grid.draw(50, 50, block.getBlockSize(), block.getBlockSize(), 10);
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do block.dispose();
+        do Output.printString("Block Type O (90 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type O (180 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type O (270 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type O (360 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Screen.clearScreen();
+        do Output.moveCursor(0, 0);
+        do block.dispose();
+        return;
+    }
+
+    function void testDrawBlockTypeT() {
+        var Block block;
+        let block = Block.new(50, 50, 2, 10);  // 2 = T
+        do Output.printString("Block Type T (0 deg)");
+        do Grid.draw(50, 50, block.getBlockSize(), block.getBlockSize(), 10);
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type T (90 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type T (180 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type T (270 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type T (360 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Screen.clearScreen();
+        do Output.moveCursor(0, 0);
+        do block.dispose();
+        return;
+    }
+
+    function void testDrawBlockTypeS() {
+        var Block block;
+        let block = Block.new(50, 50, 3, 10);  // 3 = S
+        do Output.printString("Block Type S (0 deg)");
+        do Grid.draw(50, 50, block.getBlockSize(), block.getBlockSize(), 10);
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type S (90 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type S (180 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type S (270 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type S (360 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Screen.clearScreen();
+        do Output.moveCursor(0, 0);
+        do block.dispose();
+        return;
+    }
+
+    function void testDrawBlockTypeZ() {
+        var Block block;
+        let block = Block.new(50, 50, 4, 10);  // 4 = Z
+        do Output.printString("Block Type Z (0 deg)");
+        do Grid.draw(50, 50, block.getBlockSize(), block.getBlockSize(), 10);
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type Z (90 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type Z (180 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type Z (270 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type Z (360 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Screen.clearScreen();
+        do Output.moveCursor(0, 0);
+        do block.dispose();
+        return;
+    }
+
+    function void testDrawBlockTypeJ() {
+        var Block block;
+        let block = Block.new(50, 50, 5, 10);  // 5 = J
+        do Output.printString("Block Type J (0 deg)");
+        do Grid.draw(50, 50, block.getBlockSize(), block.getBlockSize(), 10);
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type J (90 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type J (180 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type J (270 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type J (360 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Screen.clearScreen();
+        do Output.moveCursor(0, 0);
+        do block.dispose();
+        return;
+    }
+
+    function void testDrawBlockTypeL() {
+        var Block block;
+        let block = Block.new(50, 50, 6, 10);  // 6 = L
+        do Output.printString("Block Type L (0 deg)");
+        do Grid.draw(50, 50, block.getBlockSize(), block.getBlockSize(), 10);
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type L (90 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type L (180 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type L (270 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Block Type L (360 deg)");
+        do block.erase();
+        do block.rotateRight();
+        do block.draw();
+        do Tests.wait();
+        do Screen.clearScreen();
+        do Output.moveCursor(0, 0);
+        do block.dispose();
+        return;
+    }
+
+    function void testMoveBlock() {
+        var Block block;
+        let block = Block.new(50, 50, 2, 10);  // 2 = T
+        do Output.printString("Test: Move Right");
+        do Grid.draw(50, 50, 6, 4, 10);
+        do block.draw();
+        do Tests.wait();
+        do Tests.wait();
+        do block.moveRight();
+        do Tests.wait();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Test: Move Down ");
+        do Tests.wait();
+        do block.moveDown();
+        do Tests.wait();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Test: Move Left ");
+        do Tests.wait();
+        do block.moveLeft();
+        do Tests.wait();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Output.printString("Test: Move Down 3");
+        do Tests.wait();
+        do Tests.wait();
+        do block.moveNDown(3);
+        do Tests.wait();
+        do Tests.wait();
+        do Output.moveCursor(0, 0);
+        do Screen.clearScreen();
+        do block.dispose();
+        return;
+    }
+}

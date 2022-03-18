@@ -1,0 +1,29 @@
+/** Main class with a main method
+    which creates a game 
+    and then performs an interactive play
+    and then dies
+
+    It is the driver class
+
+    Rules: 
+        1. Playe has to choose a level between 1 and 4
+        2. And after then has to enter the game
+        3. In at most 13 trial a country name should be guessed
+        4. There is no partial performance score either win or lose
+        5. To re-play User must:    
+                                 - Stop the program in VMEmulator
+                                 - Reset the VMEmulator
+                                 - and the Run again
+
+    N.B.: I've tested my code several times. If there are any unintentional bugs
+          I'm really sorry for that. Please let me know if you found one
+*/
+class Main {
+    function void main() {
+        var Game game;
+        let game = Game.new();
+        do game.run();
+        do game.dispose();
+        return;
+    }
+}

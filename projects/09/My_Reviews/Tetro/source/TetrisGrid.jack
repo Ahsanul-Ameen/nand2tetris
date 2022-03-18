@@ -1,0 +1,393 @@
+/** Keeps track of placed blocks using a 2D array and
+ * provides functionality to handle different situations
+ * such as clearing horizontal lines. Also, allows to
+ * manipulate the 2D array and current block directly.
+ */
+
+class TetrisGrid {
+
+	field int x;
+	field int y;
+   field int height;
+	field int width;
+   field int minoSize;
+   field int linesCleared;
+   field Matrix placedBlockMap;
+   field Block currentBlock;
+   field int highestYMino;
+
+   /* Construct a new grid at aX, aY with aHeight, aWidth */
+	constructor TetrisGrid new(int aX, int aY,int aHeight, int aWidth, int aMinoSize) {
+      let minoSize = aMinoSize;  // size in pixels of each mino
+      let x = aX;  // x-coord of upper left corner of Tetris grid
+      let y = aY;  // y-coord of upper left corner of Tetris grid
+		let height = aHeight;  // Number of minos in height
+      let width = aWidth;  // Number of minos in width
+      let highestYMino = height;  // Distance in minos from top of highest block
+      let placedBlockMap = Matrix.new(width, height);
+      let currentBlock = null;  // Up to user to initialize using initializeBlockAtTop
+      return this;
+	}
+
+   /* Draw grid to screen */
+   method void draw() {
+      do Grid.draw(x, y, height, width, minoSize);
+      return;
+   }
+
+   /* Getter method for x */
+   method int getX() {
+      return x;
+   }
+
+   /* Getter method for y */
+   method int getY() {
+      return y;
+   }
+
+   /* Initializes the current block's starting position based on its type
+    * (assumes an overall grid of width of 10 minos)
+    * (assumes block was constructed with x,y at x,y of tetris grid)
+    */
+   method void initializeBlockAtTop(int blockType) {
+      if (currentBlock) {
+         do currentBlock.dispose();
+      }
+      let currentBlock = Block.new(x, y, blockType, minoSize);
+      do currentBlock.erase();
+      // special case for line block
+      if (blockType = 0) {
+         do currentBlock.setY(currentBlock.getY() - minoSize);  // Block I's subgrid starts one mino above the grid
+         do currentBlock.setYMino(-1);
+      }
+      else {
+         do currentBlock.setYMino(0);
+      }
+      // special case for square block
+      if (blockType = 1) {
+         do currentBlock.setXMino(width / 2 - 2);
+      }
+      else {
+         do currentBlock.setXMino(width / 2 - 1);
+      }
+      do currentBlock.setX(currentBlock.getX() + (currentBlock.getXMino() * minoSize));
+      do currentBlock.draw();
+      return;
+   }
+
+   /* Records final location of current block into placed block map */
+   method void updatePlacedBlockMap() {
+      var Matrix blockShape;
+      var int i, j, minoExists;
+      var int xMino, yMino;
+      let blockShape = currentBlock.getBlockShape();
+      while (i < currentBlock.getBlockSize()) {
+         let j = 0;
+         while (j < currentBlock.getBlockSize()) {
+            let minoExists = blockShape.get(i, j);
+            if (minoExists = 1) {
+               let xMino = currentBlock.getXMino();
+               let yMino = currentBlock.getYMino();
+               do placedBlockMap.set(xMino + i, yMino + j, 1);
+               // Also update highest yMino to increase efficiency of line checking
+               if ((yMino + j) < highestYMino) {  // < because y starts from top
+                  let highestYMino = yMino + j;
+               }
+            }
+            let j = j + 1;
+         }
+         let i = i + 1;
+      }
+      return;
+   }
+
+   /* Prints placed block map to screen */
+   method void printPlacedBlockMap() {
+      do placedBlockMap.printMatrix();
+      return;
+   }
+
+   /* See if block can rotate right */
+   method boolean canRotateRight() {
+      var Matrix blockShape;
+      var int i, j;
+      var int minoExists;
+      var int minoX, minoY;
+      var boolean canRotate;
+      let canRotate = true;
+      do currentBlock.erase();
+      let blockShape = currentBlock.getBlockShape();
+      do blockShape.rotateRight();
+      if ((currentBlock.getRightXMino() > (width - 1))
+          | (currentBlock.getLeftXMino() < 0)
+          | (currentBlock.getBottomYMino() > (height - 1))) {
+         let canRotate = false;
+      }
+      // will hit another block? Loop through each mino in the block and make
+      // sure it isn't blocked
+      if (canRotate) {
+         while (i < currentBlock.getBlockSize()) {
+            let j = 0;
+            while (j < currentBlock.getBlockSize()) {
+               let minoExists = blockShape.get(i, j);
+               if (minoExists = 1) {
+                  // get mino locations of current mino
+                  let minoX = currentBlock.getXMino() + i;
+                  let minoY = currentBlock.getYMino() + j;
+                  // see if there is a placed mino in collision with each block mino
+                  if (placedBlockMap.get(minoX, minoY)) {
+                     let canRotate = false;
+                  }
+               }
+               let j = j + 1;
+            }
+            let i = i + 1;
+         }
+      }
+      do blockShape.rotateLeft();
+      do currentBlock.draw();
+      return canRotate;
+   }
+
+   /* Can block move down? Or is it blocked? */
+   method boolean canMoveBlockDown() {
+      var Matrix blockShape;
+      var int i, j;
+      var int minoExists;
+      var int minoX, minoY;
+      // at bottom?
+      if (currentBlock.getBottomYMino() > (height - 2)) {
+         return false;
+      }
+      // will hit another block? Loop through each mino in the block and make
+      // sure it isn't blocked
+      let blockShape = currentBlock.getBlockShape();
+      while (i < currentBlock.getBlockSize()) {
+         let j = 0;
+         while (j < currentBlock.getBlockSize()) {
+            let minoExists = blockShape.get(i, j);
+            if (minoExists = 1) {
+               // get mino locations of current mino
+               let minoX = currentBlock.getXMino() + i;
+               let minoY = currentBlock.getYMino() + j;
+               // see if there is a mino directly below each mino
+               if (placedBlockMap.get(minoX, minoY + 1)) {
+                  return false;
+               }
+            }
+            let j = j + 1;
+         }
+         let i = i + 1;
+      }
+      return true;
+   }
+
+   /* Can block move right? Or is it blocked? */
+   method boolean canMoveBlockRight() {
+      var Matrix blockShape;
+      var int i, j;
+      var int minoExists;
+      var int minoX, minoY;
+      if (currentBlock.getRightXMino() > (width - 2)) {
+         return false;
+      }
+      // will hit another block? Loop through each mino in the block and make
+      // sure it isn't blocked
+      let blockShape = currentBlock.getBlockShape();
+      while (i < currentBlock.getBlockSize()) {
+         let j = 0;
+         while (j < currentBlock.getBlockSize()) {
+            let minoExists = blockShape.get(i, j);
+            if (minoExists = 1) {
+               // get mino locations of current mino
+               let minoX = currentBlock.getXMino() + i;
+               let minoY = currentBlock.getYMino() + j;
+               // see if there is a mino directly to the right of each mino
+               if (placedBlockMap.get(minoX + 1, minoY)) {
+                  return false;
+               }
+            }
+            let j = j + 1;
+         }
+         let i = i + 1;
+      }
+      return true;
+   }
+
+   /* Can block move left? Or is it blocked? */
+   method boolean canMoveBlockLeft() {
+      var Matrix blockShape;
+      var int i, j;
+      var int minoExists;
+      var int minoX, minoY;
+      if (currentBlock.getLeftXMino() < 1) {
+         return false;
+      }
+      // will hit another block? Loop through each mino in the block and make
+      // sure it isn't blocked
+      let blockShape = currentBlock.getBlockShape();
+      while (i < currentBlock.getBlockSize()) {
+         let j = 0;
+         while (j < currentBlock.getBlockSize()) {
+            let minoExists = blockShape.get(i, j);
+            if (minoExists = 1) {
+               // get mino locations of current mino
+               let minoX = currentBlock.getXMino() + i;
+               let minoY = currentBlock.getYMino() + j;
+               // see if there is a mino directly to the left of each mino
+               if (placedBlockMap.get(minoX - 1, minoY)) {
+                  return false;
+               }
+            }
+            let j = j + 1;
+         }
+         let i = i + 1;
+      }
+      return true;
+   }
+
+   /* Wrapper for current block's rotateRight method */
+   method void rotateBlockRight() {
+      do currentBlock.rotateRight();
+      return;
+   }
+
+   /* Wrapper for current block's moveDown method */
+   method void moveBlockDown() {
+      do currentBlock.moveDown();
+      return;
+   }
+
+   /* Move block down until collision */
+   method void moveBlockDownUntilCollision() {
+      if (canMoveBlockDown()) {
+         do moveBlockDown();
+         do moveBlockDownUntilCollision();
+      }
+      return;
+   }
+
+   /* Wrapper for current block's moveLeft method */
+   method void moveBlockLeft() {
+      do currentBlock.moveLeft();
+      return;
+   }
+
+   /* Wrapper for current block's moveRight method */
+   method void moveBlockRight() {
+      do currentBlock.moveRight();
+      return;
+   }
+
+   /* Wrapper to call lineExists recursively to check for lines in grid */
+   method int lineExistsInGrid() {
+      return lineExists(highestYMino);
+   }
+
+   /* Checks if a horizontal line is present in the given line number
+    * Returns -1 if a line doesn't exist
+    */
+   method int lineExists(int lineNum) {
+      var int i;
+      while (i < width) {
+         if (placedBlockMap.get(i, lineNum) = 0) {
+            let i = 1000;  // go out of loop, no line present
+         }
+         else {  // mino is present in this grid spot
+            if (i = (width - 1)) {  // if at end of row
+               return lineNum;
+            }
+            else {
+               let i = i + 1;
+            }
+         }
+      }
+      // recurse into next row if a line isn't found in this one
+      if (lineNum < (height - 1)) {
+         return lineExists(lineNum + 1);
+      }
+      return -1;
+   }
+
+   /* Clear all lines in grid, if any. Returns number of lines cleared. */
+   method void clearLines() {
+      var int lineToClear;
+      let lineToClear = lineExists(highestYMino);
+      if (lineToClear > -1) {
+         do clearLine(lineToClear);
+         do shiftDown(lineToClear);  // shift blocks above this line down one
+         let highestYMino = highestYMino + 1;
+         let linesCleared = linesCleared + 1;
+         do clearLines();  // recurse for case of multiple lines to clear
+      }
+      return;
+   }
+
+   /* Clear a single line from grid, given line number */
+   method void clearLine(int lineNum) {
+      var int i;
+      do Screen.setColor(false);
+      while (i < width) {
+         do placedBlockMap.set(i, lineNum, 0);
+         do Screen.drawRectangle((x + 1) + (i * minoSize),
+                                 (y + 1) + (lineNum * minoSize),
+                                 (x - 1) + ((i + 1) * minoSize),
+                                 (y - 1) + ((lineNum + 1) * minoSize));
+         let i = i + 1;
+      }
+      do Screen.setColor(true);
+      return;
+   }
+
+   /* Copy a line from one line (lineNum1) to another (lineNum2) */
+   method void copyLine(int lineNum1, int lineNum2) {
+      var int i;
+      var int blockColor;
+      while (i < width) {
+         let blockColor = placedBlockMap.get(i, lineNum1);
+         if (blockColor = 1) {
+            do Screen.setColor(true);
+         }
+         else {
+            do Screen.setColor(false);
+         }
+         do Screen.drawRectangle((x + 1) + (i * minoSize),
+                                 (y + 1) + (lineNum2 * minoSize),
+                                 (x - 1) + ((i + 1) * minoSize),
+                                 (y - 1) + ((lineNum2 + 1) * minoSize));
+         do placedBlockMap.set(i, lineNum2, blockColor);
+         let i = i + 1;
+      }
+      do Screen.setColor(true);
+      return;
+   }
+
+   /* Shift all blocks in grid above cleared line down one */
+   method void shiftDown(int lineNum) {
+      if (lineNum > (highestYMino - 1)) {
+         do copyLine((lineNum - 1), lineNum);
+         do shiftDown((lineNum - 1));
+         let lineNum = lineNum - 1;
+      }
+      return;
+   }
+
+   /* Getter method for highestYMino */
+   method int getHighestYMino() {
+      return highestYMino;
+   }
+
+   /* Getter method for linesCleared */
+   method int getLinesCleared() {
+      return linesCleared;
+   }
+
+   /* Dispose of this grid */
+   method void dispose() {
+      do currentBlock.dispose();
+      do placedBlockMap.dispose();
+      do Memory.deAlloc(this);
+      return;
+   }
+
+}

@@ -1,0 +1,262 @@
+/**
+ * BitmapProvider
+ * static class for providing bitmap
+ */
+class BitmapProvider
+{
+    static Array numberArray; // the bitmap of 0 through 8
+    static Array flagArray; // bitmap for flag
+    static Array mineArray; // bitmap for mine
+    static Array questionArray; // question mark
+    static Array focusArray; // focus
+
+    // getter for bitmap
+    function Array getNumber(int num)
+    {
+        if (num > 8)
+        {
+            do Sys.error(1);
+        }
+        return numberArray[num];
+    }
+    function Array getFlag() {return flagArray;}
+    function Array getMine() {return mineArray;}
+    function Array getQuestion() {return questionArray;}
+    function Array getFocus() {return focusArray;}
+
+    /**
+     * drawAt
+     * draw a bitmap at (row, col)
+     * array must be a 2-dim 16x16 array
+     * row/col will be tripped to 16k
+     * please ensure that Screen.setColor(true) are called before
+     */
+    function void drawAt(int row, int col, Array array)
+    {
+        var int location, i;
+
+        let row = (row / 16) * 16;
+        let col = (col / 16) * 16;
+
+        // check for bounds
+        if ((row > 240) | (col > 496))
+        {
+            do Sys.error(2);
+        }
+
+        let location = 16384 + ((32 * row) + (col / 16)); // calculate starting position
+
+        let i = 0;
+        while (i < 16)
+        {
+            do Memory.poke(location + (32 * i), array[i]); // write to memory directly
+            let i = i + 1;
+        }
+
+        return;
+    }
+
+    /**
+     * init
+     * initialize numberArray with bitmap of 0 to 8 and other bitmaps
+     * should be called only once at the beginning
+     */
+    function void init()
+    {
+        var int i;
+        var Array temp;
+        let numberArray = Array.new(9);
+
+        // no need to put in 0 because it is already set to 0
+        let numberArray[0] = Array.new(16);
+
+        // set 1
+        let temp = Array.new(16);
+        let temp[2] = 384;
+        let temp[3] = 448;
+        let temp[4] = 480;
+        let temp[5] = 496;
+        let temp[6] = 384;
+        let temp[7] = 384;
+        let temp[8] = 384;
+        let temp[9] = 384;
+        let temp[10] = 384;
+        let temp[11] = 384;
+        let temp[12] = 16380;
+        let temp[13] = 16380;
+        let numberArray[1] = temp;
+
+        // set 2
+        let temp = Array.new(16);
+        let temp[2] = 4080;
+        let temp[3] = 8184;
+        let temp[4] = 6168;
+        let temp[5] = 7168;
+        let temp[6] = 3584;
+        let temp[7] = 1792;
+        let temp[8] = 896;
+        let temp[9] = 448;
+        let temp[10] = 224;
+        let temp[11] = 112;
+        let temp[12] = 8184;
+        let temp[13] = 8184;
+        let numberArray[2] = temp;
+
+        // set 3
+        let temp = Array.new(16);
+        let temp[2] = 8184;
+        let temp[3] = 8184;
+        let temp[4] = 6144;
+        let temp[5] = 6144;
+        let temp[6] = 6144;
+        let temp[7] = 8184;
+        let temp[8] = 8184;
+        let temp[9] = 6144;
+        let temp[10] = 6144;
+        let temp[11] = 6144;
+        let temp[12] = 8184;
+        let temp[13] = 8184;
+        let numberArray[3] = temp;
+
+        // set 4
+        let temp = Array.new(16);
+        let temp[2] = 6168;
+        let temp[3] = 6168;
+        let temp[4] = 6168;
+        let temp[5] = 6168;
+        let temp[6] = 6168;
+        let temp[7] = 8184;
+        let temp[8] = 8184;
+        let temp[9] = 6144;
+        let temp[10] = 6144;
+        let temp[11] = 6144;
+        let temp[12] = 6144;
+        let temp[13] = 6144;
+        let numberArray[4] = temp;
+
+        // set 5
+        let temp = Array.new(16);
+        let temp[2] = 8184;
+        let temp[3] = 8184;
+        let temp[4] = 24;
+        let temp[5] = 24;
+        let temp[6] = 24;
+        let temp[7] = 8184;
+        let temp[8] = 8184;
+        let temp[9] = 6144;
+        let temp[10] = 6144;
+        let temp[11] = 6144;
+        let temp[12] = 8184;
+        let temp[13] = 8184;
+        let numberArray[5] = temp;
+
+        // set 6
+        let temp = Array.new(16);
+        let temp[2] = 8184;
+        let temp[3] = 8184;
+        let temp[4] = 24;
+        let temp[5] = 24;
+        let temp[6] = 24;
+        let temp[7] = 8184;
+        let temp[8] = 8184;
+        let temp[9] = 6168;
+        let temp[10] = 6168;
+        let temp[11] = 6168;
+        let temp[12] = 8184;
+        let temp[13] = 8184;
+        let numberArray[6] = temp;
+
+        // set 7
+        let temp = Array.new(16);
+        let temp[2] = 8184;
+        let temp[3] = 8184;
+        let temp[4] = 6144;
+        let temp[5] = 6144;
+        let temp[6] = 7168;
+        let temp[7] = 3584;
+        let temp[8] = 1792;
+        let temp[9] = 896;
+        let temp[10] = 384;
+        let temp[11] = 384;
+        let temp[12] = 384;
+        let temp[13] = 384;
+        let numberArray[7] = temp;
+
+        // set 8
+        let temp = Array.new(16);
+        let temp[2] = 2016;
+        let temp[3] = 2016;
+        let temp[4] = 6168;
+        let temp[5] = 6168;
+        let temp[6] = 6168;
+        let temp[7] = 2016;
+        let temp[8] = 2016;
+        let temp[9] = 6168;
+        let temp[10] = 6168;
+        let temp[11] = 6168;
+        let temp[12] = 2016;
+        let temp[13] = 2016;
+        let numberArray[8] = temp;
+
+        // initialize flag
+        let flagArray = Array.new(16);
+        let flagArray[2] = 112;
+        let flagArray[3] = 176;
+        let flagArray[4] = 304;
+        let flagArray[5] = 560;
+        let flagArray[6] = 1072;
+        let flagArray[7] = 2096;
+        let flagArray[8] = 8176;
+        let flagArray[9] = 48;
+        let flagArray[10] = 48;
+        let flagArray[11] = 48;
+        let flagArray[12] = 48;
+        let flagArray[13] = 120;
+
+        // initialize mine
+        let mineArray = Array.new(16);
+        let mineArray[2] = 384;
+        let mineArray[3] = 6552;
+        let mineArray[4] = 8184;
+        let mineArray[5] = 4080;
+        let mineArray[6] = 4080;
+        let mineArray[7] = 16380;
+        let mineArray[8] = 16380;
+        let mineArray[9] = 4080;
+        let mineArray[10] = 4080;
+        let mineArray[11] = 8184;
+        let mineArray[12] = 6552;
+        let mineArray[13] = 384;
+
+        // initialize question
+        let questionArray = Array.new(16);
+        let questionArray[2] = 2016;
+        let questionArray[3] = 4080;
+        let questionArray[4] = 7224;
+        let questionArray[5] = 7192;
+        let questionArray[6] = 3584;
+        let questionArray[7] = 1792;
+        let questionArray[8] = 896;
+        let questionArray[9] = 384;
+        let questionArray[10] = 384;
+        let questionArray[12] = 384;
+        let questionArray[13] = 384;
+
+        // initialize focus
+        let focusArray = Array.new(16);
+        let focusArray[0] = 2016;
+        let focusArray[1] = 960;
+        let focusArray[2] = 384;
+        let focusArray[5] = -32767;
+        let focusArray[6] = -16381;
+        let focusArray[7] = -8185;
+        let focusArray[8] = -8185;
+        let focusArray[9] = -16381;
+        let focusArray[10] = -32767;
+        let focusArray[13] = 384;
+        let focusArray[14] = 960;
+        let focusArray[15] = 2016;
+
+        return;
+    }
+}

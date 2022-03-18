@@ -1,0 +1,111 @@
+class MazeUtil {
+
+
+    function Array makeMaze01() {
+        var Array maze;
+
+        let maze = Array.new(16);
+        let maze[0] = -1;
+        let maze[1] = -32767;
+        let maze[2] = -20643;
+        let maze[3] = -24251;
+        let maze[4] = -29327;
+        let maze[5] = -23283;
+        let maze[6] = -603;
+        let maze[7] = 8213;
+        let maze[8] = -17571;
+        let maze[9] = -32703;
+        let maze[10] = -2345;
+        let maze[11] = -32243;
+        let maze[12] = -17759;
+        let maze[13] = -20803;
+        let maze[14] = -32639;
+        let maze[15] = -1;
+
+        return maze;
+    }
+
+    function Array makeMaze02() {
+        var Array maze;
+        let maze = Array.new(16);
+        let maze[0] =  -9;
+        let maze[1] =  -32251;
+        let maze[2] =  -17699;
+        let maze[3] =  -23663;
+        let maze[4] =  -18395;
+        let maze[5] =  -29803;
+        let maze[6] =  -17679;
+        let maze[7] =  -24571;
+        let maze[8] =  -20823;
+        let maze[9] =  -30035;
+        let maze[10] = -7671;
+        let maze[11] = -17553;
+        let maze[12] = -24543;
+        let maze[13] = -17475;
+        let maze[14] = -32255;
+        let maze[15] = -1;    
+
+        return maze;
+    }
+
+    function Array makeMaze03() {
+        var Array maze;
+        let maze = Array.new(16);        
+        let maze[0] =  -1;
+        let maze[1] =  -32767;
+        let maze[2] =  -18773;
+        let maze[3] =  -24575;
+        let maze[4] =  -17059;
+        let maze[5] =  -27500;
+        let maze[6] =  -11835;
+        let maze[7] =  -27503;
+        let maze[8] =  -17057;
+        let maze[9] =  -32511;
+        let maze[10] = -17321;
+        let maze[11] = -23099;
+        let maze[12] = -19363;
+        let maze[13] = -31419;
+        let maze[14] = -20207;
+        let maze[15] = -1;        
+
+        return maze;
+    }
+
+    // Draw a line with translated X and Y co-ordinate offsets
+    // to place the complete maze on the right of the screen
+    function void line(int x1, int y1, int x2, int y2) {
+        let x1 = x1 + 341;
+        let x2 = x2 + 341;
+        let y1 = y1 + 128;
+        let y2 = y2 + 128;
+        do Screen.drawLine(x1, y1, x2, y2);
+        return;
+    }
+
+    // Determines, for the given maze, whether a wall exists at the given point
+    // Returns true for a wall (1), false if open (0)
+    // Ay selects the row in the maze Array
+    // Ax selects the bit in that row    
+    function boolean wallAt(Array maze, int Ax, int Ay) {
+        var int row;
+        var int bitsel; // Bit selector
+
+        // Invert X to get proper layout of maze (x=0 is on left)
+        let Ax = 15 - Ax;
+
+        // Select the row
+        let row = maze[Ay];
+        // Select the bit in the row - multiply by two to shift bit to the right until
+        // it matches selected X position
+        // TODO: Would an "IF" for each value be quicker here?
+        let bitsel = 1;
+        while (Ax > 0) {
+            let bitsel = bitsel * 2;
+            let Ax = Ax - 1;
+        }
+        // AND the bitselector with the given row to find out if there is something at that location:
+        let row = row & bitsel;
+        return (~(row=0)); // i.e. whether there is a 1 at that point        
+    }
+
+}

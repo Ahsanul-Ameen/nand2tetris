@@ -1,0 +1,30 @@
+function Out.println 0
+push argument 0
+call Output.printString 1
+pop temp 0
+call Output.println 0
+pop temp 0
+push constant 0
+return
+function Out.printf 1
+push argument 0
+push argument 1
+call Strings.sprintf 2
+pop local 0
+push local 0
+call Output.printString 1
+pop temp 0
+push local 0
+call String.dispose 1
+pop temp 0
+push constant 0
+return
+function Out.printfln 0
+push argument 0
+push argument 1
+call Out.printf 2
+pop temp 0
+call Output.println 0
+pop temp 0
+push constant 0
+return

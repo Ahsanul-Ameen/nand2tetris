@@ -1,0 +1,282 @@
+class GamePlay {
+	
+	field boolean screenStatus, endGame;	// screenStatus and end game status
+	field Array aliens;		// 2D array of aliens
+	field Paddle paddle;	// A paddle object
+	field int score;		// game score
+	field boolean moveDir;	// alien move dir for left = false, right = true
+	
+	/** Constructs a new alien Game. */
+	constructor GamePlay new() {
+		let screenStatus = true;
+		let endGame = false;
+		do GamePlay.fillScreen(screenStatus);
+		do placeAliens();
+		let paddle = Paddle.new(10, 15);
+		let score = 0;
+		do printInstructions();
+		return this;
+	}
+
+	/** Disposes this game. */
+	method void dispose() {
+		var int i, j;
+		var Array col;
+		var Alien a;
+		let i = 0;
+		while (i < 5) {
+			let col = aliens[i];
+			let j = 0;
+			while (j < 12) {
+				let a = col[j];
+				//do a.dispose();
+				let j = j + 1;
+			}
+			//do col.dispose();
+			let i = i + 1;
+		}
+		do aliens.dispose();
+		do paddle.dispose();
+		do Memory.deAlloc(this);
+		return;
+	}
+	
+
+	
+	/** Moves the alien in the bottom */
+	method void moveAlienDown() {
+		var int i, j;
+		var Array col;
+		var Alien a;
+		let i = 4;
+		while (i > -1) {
+			let col = aliens[i];
+			let j = 0;
+			while (j < 12) {
+				let a = col[j];
+				// do stuff with alien[i][j] 
+				if(~endGame) {
+					if (~a.moveDown()) {
+						let endGame = true;
+					}
+				}
+				
+				let j = j + 1;
+				
+				do move();
+			}
+			do col.dispose();
+			let i = i - 1;
+			do Sys.wait(20);  // delays the next movements
+			do move();
+		}
+		do Sys.wait(500);  // delays the next movements
+		return;
+	}
+	
+	/** Moves the alien in Left/Right direction. */
+	method void moveAlienLeft() {
+		var int i, j;
+		var Array col;
+		var Alien a;
+		var boolean flag;
+		let i = 4;
+		while (i > -1) {
+			let col = aliens[i];
+			let j = 0;
+			while (j < 12) {
+				let a = col[j];
+				// do stuff with alien[i][j] 
+				if(~moveDir) {
+					let flag = a.moveLeft();
+					if(~flag) { let moveDir = true; }
+				}
+				let j = j + 1;
+				
+				do move();
+				
+			}
+			do col.dispose();
+			let i = i - 1;
+			do Sys.wait(300);  // delays the next movements
+			do move();
+		}
+		return;
+	}
+	
+	/** Moves the alien in Left/Right direction. */
+	method void moveAlienRight() {
+		var int i, j;
+		var Array col;
+		var Alien a;
+		var boolean flag;
+		let i = 4;
+		while (i > -1) {
+			let col = aliens[i];
+			let j = 11;
+			while (j > -1) {
+				let a = col[j];
+				// do stuff with alien[i][j] 
+				if(moveDir) {
+					let flag = a.moveRight();
+					if(~flag) { let moveDir = false; }
+				}
+				let j = j - 1;
+				
+				do move();
+			}
+			do col.dispose();
+			let i = i - 1;
+			do Sys.wait(300);  // delays the next movements
+		}
+		return;
+	}
+	
+	method void shoot() {
+		var Laser l;
+		let l = Laser.new(paddle.getX(), paddle.getY()-1);
+		return;
+	}
+	
+	/** Moves aliens ultimately */
+	method void moveAliens() {
+		do printScore();
+		do moveAlienDown();
+		if(moveDir) { do moveAlienRight(); } 
+		else { do moveAlienLeft(); }
+		return;
+	}
+	
+	/** This method is used in every other move methods to assist the interaction with keyboard input */
+	method void move() {
+		var char key; // the key currently pressed by the user
+		if(~endGame) {
+			let key = Keyboard.keyPressed();
+			// waits for the key to be released
+         	while (~(key = 0)) {
+            	let key = Keyboard.keyPressed();
+				if(key = 72) {
+					do Sys.halt();
+				}
+				if(key = 81) {
+					let endGame = true;	// not working!
+				}
+            	do paddle.movePaddle(key);
+				do Sys.wait(50);
+         	}
+		}
+		return;
+	}
+	
+	
+	/** Starts the game, and andles inputs from the user that control
+     *  the bat's movement direction. */
+    method void run() {
+        var char key;
+
+        while (~endGame) {
+            // waits for a key to be pressed.
+            while ((key = 0) & (~endGame)) {
+                let key = Keyboard.keyPressed();
+                do paddle.movePaddle(key);
+				do shoot();
+                do moveAliens();
+                do Sys.wait(50);
+            }
+				
+            // Waits for the key to be released.
+            while ((~(key = 0)) & (~endGame)) {
+                let key = Keyboard.keyPressed();
+				if(key = 72) {
+					do Sys.halt();
+				}
+				if(key = 81) {
+					let endGame = true;	// not working!
+				}
+                do paddle.movePaddle(key);
+				do shoot();
+                do moveAliens();
+                do Sys.wait(50);
+            }
+        }
+		do printGameOver();	 // show game over 
+		
+        return;
+    }
+	
+	
+	/** Initialzes a 5 by 12 alien array 
+		Consisting of first 12 * 16 pixels of each row
+			0 - 3 | 4 - 15 | 16 - 19
+	*/
+	method void placeAliens() {
+		var int i, j, k, type;
+		var Array col;
+		let aliens = Array.new(5);
+		let i = 4;
+		let k = 5;
+		while (i > -1) {
+			do Random.seed(267 * i);
+			let col = Array.new(20);
+			let aliens[i] = col;
+			let j = 0;
+			if((i = 4) | (i = 3)) { let type = 3; }
+			if((i = 2) | (i = 1)) { let type = 2; }	
+			if(i = 0) { let type = 1; }				
+			while (j < 12) {
+				let col[j] = Alien.new(j + 4, i - k, type);
+				let j = j + 1;
+			}
+			let i = i - 1;
+			let k = k + 1;
+		}
+		return;
+	}
+	
+	/** prints status when game is over */
+	method void printGameOver() {
+        do Output.moveCursor(18, 44);	// 0 - 22 top to bottom, 0 - 63 [64 characters each] left to write
+	    do Output.printString("Game Over");
+		return;
+	}
+	
+	/** prints Halt */
+	method void printInstructions() {
+        do Output.moveCursor(6, 41);	// 0 - 22 top to bottom, 0 - 63 [64 characters each] left to write
+	    do Output.printString("Presss: [H]alt, [Q]uit");
+		return;
+	}
+	
+	/** prints score while playing game */
+	method void printScore() {
+		//do Output.moveCursor(2, 44);	// 0 - 22 top to bottom, 0 - 63 [64 characters each] left to write
+	    let score = score + 1;
+        do Output.moveCursor(2,44);
+		do Output.printChar(83);
+		do Output.printChar(99);
+		do Output.printChar(111);
+		do Output.printChar(114);
+		do Output.printChar(101);
+		do Output.printChar(58);
+		do Output.printChar(32);
+		//83 99 111 114 101 58 32
+        do Output.printInt(score);
+		return;
+	}
+
+	// Initialzed the dark pong screen
+	function void fillScreen(boolean flag) {
+		if (flag) {
+			do Screen.drawRectangle(0, 0, 321, 255); 
+			do Screen.setColor(false);
+			do Screen.drawLine(320, 0, 320, 255);
+			do Screen.setColor(true);
+			do Screen.drawRectangle(321, 50, 511, 52);
+			do Screen.drawRectangle(321, 100, 511, 102);
+		} else {
+			do Screen.clearScreen();
+		}
+		return;
+	}
+
+}

@@ -1,0 +1,39 @@
+/**
+ * Utility methods for outputting strings to the screen.
+ *
+ * @author Jackson Ray Hamilton
+ */
+class Out {
+
+  /**
+   * Java-like `println()`. Prints a string followed by a newline.
+   */
+  function void println(String string) {
+    do Output.printString(string);
+    do Output.println();
+    return;
+  }
+
+  /**
+   * Similar's to C's `printf()`, but with limitations.
+   *
+   * See `Strings.sprintf()`.
+   */
+  function void printf(String format, Array values) {
+    var String formattedString;
+    let formattedString = Strings.sprintf(format, values);
+    do Output.printString(formattedString);
+    do formattedString.dispose();
+    return;
+  }
+
+  /**
+   * `printf()` but with a newline.
+   */
+  function void printfln(String format, Array values) {
+    do Out.printf(format, values);
+    do Output.println();
+    return;
+  }
+
+}

@@ -1,0 +1,83 @@
+/** Implements player and handle thier Win/Loss records*/
+
+class Player{
+	field InsertXO insertSym;
+	field int win,loss,id;
+	
+	constructor Player new(int i){
+		
+		let id = i;
+		let insertSym = InsertXO.new(id);
+		do resetData();
+		return this;
+	}
+	
+	// draw the player's symbol
+	// "X" for player 1 and  "O" for player 2
+	method void drawSymbol(int i){
+		do insertSym.drawSym(i);
+		return;
+	}
+	//shows the player's win/loss record below his name
+	method void drawPlayerRecord(int c){
+		do Output.moveCursor(1,c);
+		do Output.printString("           ");
+		do Output.moveCursor(1,c);
+		do Output.printString("(W:");
+		do Output.printInt(win);
+		do Output.printString(",L:");
+		do Output.printInt(loss);
+		do Output.printString(")");
+		return;
+	
+	}
+	
+	//shows the turn of current player using arrows "<====" or "====>"
+	method void drawTurn(){
+		
+		if(id=1){
+			do Output.moveCursor(0,40);
+			do Output.printString("     ");
+			do Output.moveCursor(0,20);
+			do Output.printString("<====");
+			return;
+		}
+		if(id=2){
+			do Output.moveCursor(0,20);
+			do Output.printString("     ");
+			do Output.moveCursor(0,40);
+			do Output.printString("====>");
+			return;
+		}
+		return;
+	}
+	
+	// update the win/loss records of player
+	method void setWin(){
+		let win=win+1;
+		return;
+	}
+	
+	method void setLoss(){	
+		let loss=loss+1;
+		return;
+	}
+	
+	// reset the win/loss records of player
+	method void resetData(){
+		let win=0;
+		let loss=0;
+		return;
+	}
+	
+	//return the win/loss records of player
+	method int getWin(){return win;}
+	
+	method int getLoss(){return loss;}
+	
+	//free memory
+	method void dispose() {
+		do insertSym.dispose();
+		do Memory.deAlloc(this);
+		return;}
+}

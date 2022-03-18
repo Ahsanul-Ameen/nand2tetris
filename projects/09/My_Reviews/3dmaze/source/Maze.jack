@@ -1,0 +1,386 @@
+/** 
+The maze is modeled as an array of 16 words. Each bit in each word represents a location.
+If the bit is set (1) it's a wall and cannot be moved through.
+If the bit is not set (0), it's open.
+This is quite space-saving, but requires more complex bit manipulation as in method wallAt(x,y)
+
+Very helpful advice came from here:
+https://www.reddit.com/r/gamedev/comments/hguuer/what_is_the_methodalgorithm_for_rendering_a/fw9ndun
+
+*/
+class Maze {
+    field int playerx, playery; // Player's position in the maze
+    field int direction; // Direction the player is facing
+    field int moves; // Number of moves taken
+    field Array maze; // The maze data
+
+    // Different states within the game
+    field boolean gameOver;
+    field boolean showMap;
+
+    // The 'fake' co-ordinates are pre-computed points to avoid having to 
+    // calculate them on the fly:
+    field Array fakex; 
+    field Array fakey; 
+
+    field MazeGenerator generator;
+    field boolean mazeBad;
+
+    static int north, south, east, west;
+
+    field int mazeNo;
+
+    constructor Maze new(int mazeNumber) {
+        let north = 1;
+        let east = 2;
+        let south = 4;
+        let west = 8;
+
+        let gameOver = false;
+        let showMap = false;
+        let moves = 0;
+
+        // Define the maze and set initial position
+        let mazeNo = mazeNumber;
+        if (mazeNumber = 1) {
+            let maze = MazeUtil.makeMaze01();
+            let playerx = 8;
+            let playery = 1;
+            let direction = south;
+        }        
+        if (mazeNumber = 2) {
+            let maze = MazeUtil.makeMaze02();
+            let playerx = 5;
+            let playery = 12;
+            let direction = north;
+        }                
+        if (mazeNumber = 3) {
+            let maze = MazeUtil.makeMaze03();
+            let playerx = 3;
+            let playery = 11;
+            let direction = west;
+        }
+
+        if (mazeNumber = 4) {
+            do Output.moveCursor(1,1);
+            let generator = MazeGenerator.new();
+            let mazeBad = true;
+            // while (mazeBad) {
+                let maze = generator.generate();
+                let mazeBad = wallAt(1,14);
+            // }
+            let playerx = 1;
+            let playery = 1;
+            let direction = south;
+            do generator.dispose();
+        }                                
+
+        // Define fake perspective co-ordinates
+        let fakex = Array.new(11);
+        let fakey = Array.new(11);
+        let fakex[0] = 153;
+        let fakey[0] = 115;
+        let fakex[1] = 113;
+        let fakey[1] = 85;
+        let fakex[2] = 78;
+        let fakey[2] = 59;
+        let fakex[3] = 54;
+        let fakey[3] = 41;
+        let fakex[4] = 37;
+        let fakey[4] = 28;
+        let fakex[5] = 25;
+        let fakey[5] = 19;
+        let fakex[6] = 17;
+        let fakey[6] = 13;
+        let fakex[7] = 11;
+        let fakey[7] = 8;
+        let fakex[8] = 7;
+        let fakey[8] = 5;
+        let fakex[9] = 4;
+        let fakey[9] = 3;
+        let fakex[10] = 3;
+        let fakey[10] = 2;        
+
+        return this;
+    }
+
+    method void turnRight() {
+        let direction = direction * 2;
+        if (direction > 8) { let direction = 1; }
+        do draw();
+        return;
+    }
+
+    method void turnLeft() {
+        if (direction=1) { let direction = 8;} 
+        else { let direction = direction / 2; }
+        do draw();
+        return;
+    }
+
+    method void forward() {
+        var int targetx, targety; // Point towards which we are trying to move
+        let targetx = playerx;
+        let targety = playery;
+        if (direction=north) { let targety = targety - 1; }
+        if (direction=south) { let targety = targety + 1; }
+        if (direction=west) { let targetx = targetx + 1; }     
+        if (direction=east) { let targetx = targetx - 1; }           
+        if (wallAt(targetx, targety)) {
+            do Output.moveCursor(11, 39);
+            do Main.printStringConst("BLOCKED!");
+            return;
+        } else {
+            let playerx = targetx;
+            let playery = targety;
+            let moves = moves + 1;
+        }
+
+        // Check whether we're outside
+        if ((playerx < 0) | (playerx > 15) | (playery < 0) | (playery > 15) ) {
+            let gameOver = true;
+        }
+        
+        do draw();        
+
+        return;
+    }
+
+    // Determine if there is a wall at the given point
+    method boolean wallAt(int Ax, int Ay) {
+        return MazeUtil.wallAt(maze, Ax, Ay);
+    }
+
+    /**
+        DRAWING ROUTINES
+    */
+
+    method void drawMap() {
+
+        var int i, j;
+
+        // Draw map of maze
+        let i = 0; 
+        while (i < 16) {
+            let j = 0;
+            while (j < 16) {
+                do Output.moveCursor(i+3,j+33);
+                if (MazeUtil.wallAt(maze, 15-j, i)) { do Output.printChar(88); }
+                else { do Output.printChar(32); }
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+
+        // Place 'O' where player is
+        do Output.moveCursor(playery + 3, 15 - playerx + 33);
+        do Main.printStringConst("O");
+
+        return;
+    }
+
+    method void drawInfo() {
+        // Draw separator line for menu on left
+        do Screen.drawLine(169, 0, 169, 255);
+
+        // Maze number
+        if (mazeNo = 4) {
+            do Output.moveCursor(1, 2);
+            do Main.printStringConst("RANDOM MAZE");
+            do Output.moveCursor(2, 2);
+            do Output.printInt(Game.getSeed());
+        } else {
+            do Output.moveCursor(1, 2);
+            do Main.printStringConst("MAZE ");
+            do Output.printInt(mazeNo);
+        }
+
+        // Write direction on top
+        do Output.moveCursor(5, 2);
+        if (direction=north) { do Main.printStringConst("NORTH"); }
+        if (direction=south) { do Main.printStringConst("SOUTH"); }
+        if (direction=east) { do Main.printStringConst("EAST"); }
+        if (direction=west) { do Main.printStringConst("WEST"); }
+
+        // Write player pos. for diagnostics
+        do Output.moveCursor(8, 2);
+        do Main.printStringConst("X: ");
+        do Output.printInt(playerx);
+        do Main.printStringConst(" Y: ");
+        do Output.printInt(playery);
+
+        do Output.moveCursor(11, 2);
+        do Main.printStringConst("[Up] Forward");
+        do Output.moveCursor(12, 2);
+        do Main.printStringConst("[Left] Turn Left");
+        do Output.moveCursor(13, 2);
+        do Main.printStringConst("[Right] Turn Right");
+        do Output.moveCursor(14, 2);
+        do Main.printStringConst("[M] Show/Hide Map");        
+
+        do Output.moveCursor(18, 2);
+        do Main.printStringConst("[Q] Quit ");
+
+        return;
+    }
+
+    method void drawMaze() {
+        // Starting with the player's position, run along their line of sight until they hit a wall
+        // or the wall is to far or they are looking at the exit
+        // North -> Y decreases
+        // South -> Y increases
+        // West  -> X increases
+        // East  -> X decreases
+
+        var int targetx, targety; // Point towards which we are drawing
+        var boolean leftWall, rightWall;
+        var bolean exit;
+        var int step;
+
+        // Co-ordinates for drawing lines
+        var int x, y, oldx, oldy;
+        var int yleft, yright;
+
+        let targetx = playerx;
+        let targety = playery;
+        let exit = false;
+        let step = 0;
+
+        // Draw walls on either side of passage in direction player is facing until a wall is hit
+        let oldx = 170;
+        let oldy = 127;
+        while (exit=false) {
+            if (direction=north) {
+                let targety = playery - step;
+                let leftWall = wallAt(targetx + 1, targety);
+                let rightWall = wallAt(targetx - 1, targety);
+                let exit = wallAt(targetx, targety - 1);
+            }
+            if (direction=south) {
+                let targety = playery + step;
+                let leftWall = wallAt(targetx - 1, targety);
+                let rightWall = wallAt(targetx + 1, targety);
+                let exit = wallAt(targetx, targety + 1);
+            }
+            if (direction=west) {
+                let targetx = playerx + step;
+                let leftWall = wallAt(targetx, targety + 1);
+                let rightWall = wallAt(targetx, targety - 1);
+                let exit = wallAt(targetx + 1, targety);
+            }     
+            if (direction=east) {
+                let targetx = playerx - step;
+                let leftWall = wallAt(targetx, targety - 1);
+                let rightWall = wallAt(targetx, targety + 1);
+                let exit = wallAt(targetx - 1, targety);
+            }
+
+            let x = fakex[step];
+            let y = fakey[step];
+
+            // Draw the upright lines
+            do MazeUtil.line(-x, -y, -x, y);
+            do MazeUtil.line(x, -y, x, y);
+
+            // Lines to the uprights determined based on whether there is a wall on that side
+            if (leftWall) {
+                let yleft = oldy;
+            } else {
+                let yleft = y;
+            }
+            if (rightWall) {
+                let yright = oldy;
+            } else {
+                let yright = y;
+            }
+
+            // Draw the lines connecting walls or going to sides
+            do MazeUtil.line(-oldx, -yleft, -x, -y);
+            do MazeUtil.line(-oldx, yleft, -x, y);
+            do MazeUtil.line(oldx, -yright, x, -y);
+            do MazeUtil.line(oldx, yright, x, y);
+
+            // Determine other conditions under which the cycle is ended
+            // 1. We've run out of fake co-ordinates (can only look so far!)
+            if (step > 9) { let exit = true; }
+            // 2. The target is out of the maze bounds (when looking at the exit!)
+            if ((targetx > 15) | (targetx < 0) | (targety > 15) | (targety < 0)) {
+                let exit = true;
+            }
+
+            let oldx = x;
+            let oldy = y;
+            let step = step + 1;
+
+        }    
+
+        // Draw the terminating wall at end of visible passage, if applicable
+        do MazeUtil.line(-oldx, oldy, oldx, oldy);
+        do MazeUtil.line(-oldx, -oldy, oldx, -oldy);
+
+        return;
+    }
+
+    // Draws the end / game over screen
+    method void drawOver() {
+        do Output.moveCursor(9, 32);
+        do Main.printStringConst("You made it out alive!");
+        do Output.moveCursor(11, 32);
+        do Main.printStringConst("You took ");        
+        do Output.printInt(moves);
+        do Main.printStringConst(" moves");
+        do Output.moveCursor(13, 32);
+        do Main.printStringConst("Press [Q] for the Menu");        
+        return;
+    }
+
+    // Redraw the entire screen
+    method void draw() {
+        do Screen.clearScreen();
+
+        do drawInfo();
+
+        if (gameOver) { do drawOver(); } 
+        else { 
+            if (showMap) { do drawMap(); } 
+            else { do drawMaze(); }
+        }
+
+        return;
+    }
+
+    method void run() {
+        var boolean exit;
+        var char key;
+
+        let exit = false;
+
+        do draw(); // Initial display of maze to kick things off
+
+        let key = Keyboard.keyPressed();
+        while(~exit) {
+            // Wait until key pressed
+            while (key=0) { let key = Keyboard.keyPressed(); }
+
+            if (key=81) { let exit = true; } // Q
+            if (~(gameOver)) {
+                if (key=131) { do forward(); } // Up
+                if (key=130) { do turnLeft(); } // Left
+                if (key=132) { do turnRight(); } // Right
+                if (key=77) { let showMap = ~(showMap); do draw(); } // M
+            }
+
+            // Prevent spinning; wait for user to release key
+            while (~(key=0)) { let key = Keyboard.keyPressed(); }
+        }        
+        return;
+    }
+
+    method void dispose() {
+      do Memory.deAlloc(maze);
+      do Memory.deAlloc(fakex);
+      do Memory.deAlloc(fakey);
+      do Memory.deAlloc(this);
+      return;        
+    }
+}

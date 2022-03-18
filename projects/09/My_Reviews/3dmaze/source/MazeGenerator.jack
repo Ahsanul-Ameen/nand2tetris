@@ -1,0 +1,147 @@
+// This class is used to generate a maze using a recursive backtracker 
+// algorithm due to it being easy to implement. It's a bit risque because
+// of the Hack's limited stack size, but in testing on another platform,
+// the stack didn't go more than ~90 frames deep, while going ~158 frame
+// with this logic on the Hack causes a stack overflow.
+
+class MazeGenerator {
+    field Random random;
+    field Array directions;
+    field Array maze;
+
+    constructor MazeGenerator new() {
+        var int seed;
+
+        let random = Random.new(Game.getSeed());
+        let maze = Array.new(16);
+
+        let directions = Array.new(4);
+        let directions[0] = 0;
+        let directions[1] = 1;
+        let directions[2] = 2;
+        let directions[3] = 3;
+
+        return this;
+    }
+
+    // Mix up the directions randomly. It's kind of Fisher-Yates, I guess...
+    method void shuffleDirections() {
+        var int idx;
+        var int ridx; // Random index
+        var int p;
+        let idx = 1;
+        while (idx < 4) {
+            let ridx = random.nextr(3);
+            let p = directions[0];
+            let directions[0] = directions[ridx];
+            let directions[ridx] = p; // Swap randomly with 0
+            let idx = idx + 1;
+        }
+        return;
+    }
+
+    method Array generate() {
+
+        // Initialize maze
+        let maze[0] =  -1;
+        let maze[1] =  -1;
+        let maze[2] =  -1;
+        let maze[3] =  -1;
+        let maze[4] =  -1;
+        let maze[5] =  -1;
+        let maze[6] =  -1;
+        let maze[7] =  -1;
+        let maze[8] =  -1;
+        let maze[9] =  -1;
+        let maze[10] = -1;
+        let maze[11] = -1;
+        let maze[12] = -1;
+        let maze[13] = -1;
+        let maze[14] = -1;
+        let maze[15] = -1;
+
+        // Start process in top left hand corner
+        do carve(1,1);
+
+        // Open y=14, x=15 as the exit (bottom right)        
+        let maze[14] = maze[14] - 1;
+        // It might be that this place is not accessible, but the caller
+        // must figure that out (by checking 14,14) and request a new maze if that is the case
+        // Well, actually x=1,y=14 because of it being a mirror image.
+
+        return maze;
+    }
+
+    method void clearBit(int Ax, int Ay) {
+        var int bitsel; // Bit selector
+
+        let bitsel = 1;
+        let Ax = 15 - Ax; // Due to mirroring the maze (see MazeGenerator.wallAt())
+        while (Ax > 0) { let bitsel = bitsel * 2; let Ax = Ax - 1; }
+        let bitsel = ~(bitsel); // Invert to put only 0 on desired bit
+
+        let maze[Ay] = maze[Ay] & bitsel; // Logical AND to clear the bit
+        return;
+    }
+
+    method void carve(int x, int y) {
+        var int direction, diridx; // Direction and direction index
+        var int tgtx, tgty; // Target x and y
+
+        do clearBit(x, y);
+
+        // Shuffle our four directions
+        do shuffleDirections();
+
+        // For each direction, test the target to see it will be valid
+        let diridx = 0;
+        while (diridx < 4) {
+            let tgtx = x;
+            let tgty = y;
+
+            let direction = directions[diridx];
+
+            if (direction = 0) { let tgty = tgty - 1; } // North
+            if (direction = 2) { let tgty = tgty + 1; } // South
+            if (direction = 1) { let tgtx = tgtx + 1; } // East
+            if (direction = 3) { let tgtx = tgtx - 1; } // West
+
+            // Check validity of target cell; carve it out if valid
+            if (validTarget(tgtx, tgty)) { do carve(tgtx, tgty); }
+
+            // Try next direction
+            let diridx = diridx + 1;
+        }
+
+        return;
+    }
+
+    method boolean validTarget(int x, int y) {
+
+        var int numWalls;
+
+        // Check whether out of bounds
+        if ((x > 14) | (x < 1) | (y > 14) | (y < 1) ) { return false; }
+
+        // Check whether target already reached (e.g. cell we are coming from)
+        // if (~(MazeUtil.wallAt(maze, x, y))) { return false; }
+
+        // Count number of closed neighbours. Must be 3.
+        let numWalls = 0;
+        if (MazeUtil.wallAt(maze, x+1, y)) { let numWalls = numWalls + 1; }
+        if (MazeUtil.wallAt(maze, x-1, y)) { let numWalls = numWalls + 1; }
+        if (MazeUtil.wallAt(maze, x, y+1)) { let numWalls = numWalls + 1; }
+        if (MazeUtil.wallAt(maze, x, y-1)) { let numWalls = numWalls + 1; }
+
+        return (numWalls = 3);
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        // do Memory.deAlloc(maze); // Caller needs this!
+        do Memory.deAlloc(random);
+        return;
+    }
+
+
+}

@@ -1,0 +1,120 @@
+/**
+ * MineBlock
+ * represents a mine block
+ */
+class MineBlock
+{
+    field int row, col, number; // fields for number display
+    field boolean visible, flag, mine, focus; // status fields
+
+    /**
+     * constructor
+     * simply initialize all the members
+     * r and c will be triped to 16k
+     */
+    constructor MineBlock new(int r, int c, int n)
+    {
+        let row = (r / 16) * 16;
+        let col = (c / 16) * 16;
+        let number = n;
+
+        // status field 
+        let visible = false; let flag = false; let mine = false; let focus = false;
+
+        // check for bounds
+        if ((number > 8) | (row > 240) | (col > 496))
+        {
+            do Sys.error(3);
+        }
+
+        return this;
+    }
+
+    // getter/setters
+    method int getNumber() {return number;}
+    method void setNumber(int n)
+    {
+        if (n > 8)
+        {
+            do Sys.error(4);
+        }
+
+        let number = n;
+        return;
+    }
+    method boolean isMine() {return mine;}
+    method void setMine(boolean b) {let mine = b; return;}
+    method void setFocus(boolean b) {let focus = b; return;}
+    method boolean isVisible() {return visible;}
+    method void setVisible()
+    {
+        let flag = false;
+        let visible = true;
+        return;
+    }
+    method boolean isFlag() {return flag;}
+    method void flipFlag()
+    {
+        if (visible)
+        {
+            let flag = false;
+            return;
+        }
+        let flag = ~flag;
+        return;
+    }
+
+    /**
+     * draw
+     * draw this block
+     */
+    method void draw()
+    {
+        var Array temp;
+
+        if (~visible)
+        {
+            // not visible, draw flag or question
+            if (flag)
+            {
+                let temp = BitmapProvider.getFlag();
+            }
+            else
+            {
+                let temp = BitmapProvider.getQuestion();
+            }
+            do BitmapProvider.drawAt(row, col, temp);
+        }
+        else
+        {
+            // visible, draw number or mine
+            if (mine | (number > 0))
+            {
+                if (mine)
+                {
+                    let temp = BitmapProvider.getMine();
+                }
+                else
+                {
+                    let temp = BitmapProvider.getNumber(number);
+                }
+                do BitmapProvider.drawAt(row, col, temp);
+            }
+        }
+
+        // draw focus
+        if (focus)
+        {
+            //let temp = BitmapProvider.getFocus();
+            //do BitmapProvider.drawAt(row, col, temp);
+
+            do Screen.drawRectangle(col, row, col + 15, row + 1); // up
+            do Screen.drawRectangle(col, row + 14, col + 15, row + 15); // down
+            do Screen.drawRectangle(col, row, col + 1, row + 15); // left
+            do Screen.drawRectangle(col + 14, row, col + 15, row + 15); // right
+        }
+
+        return;
+    }
+}
+

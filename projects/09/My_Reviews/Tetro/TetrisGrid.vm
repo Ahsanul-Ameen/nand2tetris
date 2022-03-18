@@ -1,0 +1,928 @@
+function TetrisGrid.new 0
+push constant 9
+call Memory.alloc 1
+pop pointer 0
+push argument 4
+pop this 4
+push argument 0
+pop this 0
+push argument 1
+pop this 1
+push argument 2
+pop this 2
+push argument 3
+pop this 3
+push this 2
+pop this 8
+push this 3
+push this 2
+call Matrix.new 2
+pop this 6
+push constant 0
+pop this 7
+push pointer 0
+return
+function TetrisGrid.draw 0
+push argument 0
+pop pointer 0
+push this 0
+push this 1
+push this 2
+push this 3
+push this 4
+call Grid.draw 5
+pop temp 0
+push constant 0
+return
+function TetrisGrid.getX 0
+push argument 0
+pop pointer 0
+push this 0
+return
+function TetrisGrid.getY 0
+push argument 0
+pop pointer 0
+push this 1
+return
+function TetrisGrid.initializeBlockAtTop 0
+push argument 0
+pop pointer 0
+push this 7
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 7
+call Block.dispose 1
+pop temp 0
+label IF_FALSE0
+push this 0
+push this 1
+push argument 1
+push this 4
+call Block.new 4
+pop this 7
+push this 7
+call Block.erase 1
+pop temp 0
+push argument 1
+push constant 0
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 7
+push this 7
+call Block.getY 1
+push this 4
+sub
+call Block.setY 2
+pop temp 0
+push this 7
+push constant 1
+neg
+call Block.setYMino 2
+pop temp 0
+goto IF_END1
+label IF_FALSE1
+push this 7
+push constant 0
+call Block.setYMino 2
+pop temp 0
+label IF_END1
+push argument 1
+push constant 1
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push this 7
+push this 3
+push constant 2
+call Math.divide 2
+push constant 2
+sub
+call Block.setXMino 2
+pop temp 0
+goto IF_END2
+label IF_FALSE2
+push this 7
+push this 3
+push constant 2
+call Math.divide 2
+push constant 1
+sub
+call Block.setXMino 2
+pop temp 0
+label IF_END2
+push this 7
+push this 7
+call Block.getX 1
+push this 7
+call Block.getXMino 1
+push this 4
+call Math.multiply 2
+add
+call Block.setX 2
+pop temp 0
+push this 7
+call Block.draw 1
+pop temp 0
+push constant 0
+return
+function TetrisGrid.updatePlacedBlockMap 6
+push argument 0
+pop pointer 0
+push this 7
+call Block.getBlockShape 1
+pop local 0
+label WHILE_EXP0
+push local 1
+push this 7
+call Block.getBlockSize 1
+lt
+not
+if-goto WHILE_END0
+push constant 0
+pop local 2
+label WHILE_EXP1
+push local 2
+push this 7
+call Block.getBlockSize 1
+lt
+not
+if-goto WHILE_END1
+push local 0
+push local 1
+push local 2
+call Matrix.get 3
+pop local 3
+push local 3
+push constant 1
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push this 7
+call Block.getXMino 1
+pop local 4
+push this 7
+call Block.getYMino 1
+pop local 5
+push this 6
+push local 4
+push local 1
+add
+push local 5
+push local 2
+add
+push constant 1
+call Matrix.set 4
+pop temp 0
+push local 5
+push local 2
+add
+push this 8
+lt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push local 5
+push local 2
+add
+pop this 8
+label IF_FALSE1
+label IF_FALSE0
+push local 2
+push constant 1
+add
+pop local 2
+goto WHILE_EXP1
+label WHILE_END1
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+return
+function TetrisGrid.printPlacedBlockMap 0
+push argument 0
+pop pointer 0
+push this 6
+call Matrix.printMatrix 1
+pop temp 0
+push constant 0
+return
+function TetrisGrid.canRotateRight 7
+push argument 0
+pop pointer 0
+push constant 0
+not
+pop local 6
+push this 7
+call Block.erase 1
+pop temp 0
+push this 7
+call Block.getBlockShape 1
+pop local 0
+push local 0
+call Matrix.rotateRight 1
+pop temp 0
+push this 7
+call Block.getRightXMino 1
+push this 3
+push constant 1
+sub
+gt
+push this 7
+call Block.getLeftXMino 1
+push constant 0
+lt
+or
+push this 7
+call Block.getBottomYMino 1
+push this 2
+push constant 1
+sub
+gt
+or
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+pop local 6
+label IF_FALSE0
+push local 6
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+label WHILE_EXP0
+push local 1
+push this 7
+call Block.getBlockSize 1
+lt
+not
+if-goto WHILE_END0
+push constant 0
+pop local 2
+label WHILE_EXP1
+push local 2
+push this 7
+call Block.getBlockSize 1
+lt
+not
+if-goto WHILE_END1
+push local 0
+push local 1
+push local 2
+call Matrix.get 3
+pop local 3
+push local 3
+push constant 1
+eq
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push this 7
+call Block.getXMino 1
+push local 1
+add
+pop local 4
+push this 7
+call Block.getYMino 1
+push local 2
+add
+pop local 5
+push this 6
+push local 4
+push local 5
+call Matrix.get 3
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push constant 0
+pop local 6
+label IF_FALSE3
+label IF_FALSE2
+push local 2
+push constant 1
+add
+pop local 2
+goto WHILE_EXP1
+label WHILE_END1
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+label IF_FALSE1
+push local 0
+call Matrix.rotateLeft 1
+pop temp 0
+push this 7
+call Block.draw 1
+pop temp 0
+push local 6
+return
+function TetrisGrid.canMoveBlockDown 6
+push argument 0
+pop pointer 0
+push this 7
+call Block.getBottomYMino 1
+push this 2
+push constant 2
+sub
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push this 7
+call Block.getBlockShape 1
+pop local 0
+label WHILE_EXP0
+push local 1
+push this 7
+call Block.getBlockSize 1
+lt
+not
+if-goto WHILE_END0
+push constant 0
+pop local 2
+label WHILE_EXP1
+push local 2
+push this 7
+call Block.getBlockSize 1
+lt
+not
+if-goto WHILE_END1
+push local 0
+push local 1
+push local 2
+call Matrix.get 3
+pop local 3
+push local 3
+push constant 1
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 7
+call Block.getXMino 1
+push local 1
+add
+pop local 4
+push this 7
+call Block.getYMino 1
+push local 2
+add
+pop local 5
+push this 6
+push local 4
+push local 5
+push constant 1
+add
+call Matrix.get 3
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 0
+return
+label IF_FALSE2
+label IF_FALSE1
+push local 2
+push constant 1
+add
+pop local 2
+goto WHILE_EXP1
+label WHILE_END1
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+not
+return
+function TetrisGrid.canMoveBlockRight 6
+push argument 0
+pop pointer 0
+push this 7
+call Block.getRightXMino 1
+push this 3
+push constant 2
+sub
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push this 7
+call Block.getBlockShape 1
+pop local 0
+label WHILE_EXP0
+push local 1
+push this 7
+call Block.getBlockSize 1
+lt
+not
+if-goto WHILE_END0
+push constant 0
+pop local 2
+label WHILE_EXP1
+push local 2
+push this 7
+call Block.getBlockSize 1
+lt
+not
+if-goto WHILE_END1
+push local 0
+push local 1
+push local 2
+call Matrix.get 3
+pop local 3
+push local 3
+push constant 1
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 7
+call Block.getXMino 1
+push local 1
+add
+pop local 4
+push this 7
+call Block.getYMino 1
+push local 2
+add
+pop local 5
+push this 6
+push local 4
+push constant 1
+add
+push local 5
+call Matrix.get 3
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 0
+return
+label IF_FALSE2
+label IF_FALSE1
+push local 2
+push constant 1
+add
+pop local 2
+goto WHILE_EXP1
+label WHILE_END1
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+not
+return
+function TetrisGrid.canMoveBlockLeft 6
+push argument 0
+pop pointer 0
+push this 7
+call Block.getLeftXMino 1
+push constant 1
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+return
+label IF_FALSE0
+push this 7
+call Block.getBlockShape 1
+pop local 0
+label WHILE_EXP0
+push local 1
+push this 7
+call Block.getBlockSize 1
+lt
+not
+if-goto WHILE_END0
+push constant 0
+pop local 2
+label WHILE_EXP1
+push local 2
+push this 7
+call Block.getBlockSize 1
+lt
+not
+if-goto WHILE_END1
+push local 0
+push local 1
+push local 2
+call Matrix.get 3
+pop local 3
+push local 3
+push constant 1
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push this 7
+call Block.getXMino 1
+push local 1
+add
+pop local 4
+push this 7
+call Block.getYMino 1
+push local 2
+add
+pop local 5
+push this 6
+push local 4
+push constant 1
+sub
+push local 5
+call Matrix.get 3
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 0
+return
+label IF_FALSE2
+label IF_FALSE1
+push local 2
+push constant 1
+add
+pop local 2
+goto WHILE_EXP1
+label WHILE_END1
+push local 1
+push constant 1
+add
+pop local 1
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+not
+return
+function TetrisGrid.rotateBlockRight 0
+push argument 0
+pop pointer 0
+push this 7
+call Block.rotateRight 1
+pop temp 0
+push constant 0
+return
+function TetrisGrid.moveBlockDown 0
+push argument 0
+pop pointer 0
+push this 7
+call Block.moveDown 1
+pop temp 0
+push constant 0
+return
+function TetrisGrid.moveBlockDownUntilCollision 0
+push argument 0
+pop pointer 0
+push pointer 0
+call TetrisGrid.canMoveBlockDown 1
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push pointer 0
+call TetrisGrid.moveBlockDown 1
+pop temp 0
+push pointer 0
+call TetrisGrid.moveBlockDownUntilCollision 1
+pop temp 0
+label IF_FALSE0
+push constant 0
+return
+function TetrisGrid.moveBlockLeft 0
+push argument 0
+pop pointer 0
+push this 7
+call Block.moveLeft 1
+pop temp 0
+push constant 0
+return
+function TetrisGrid.moveBlockRight 0
+push argument 0
+pop pointer 0
+push this 7
+call Block.moveRight 1
+pop temp 0
+push constant 0
+return
+function TetrisGrid.lineExistsInGrid 0
+push argument 0
+pop pointer 0
+push pointer 0
+push this 8
+call TetrisGrid.lineExists 2
+return
+function TetrisGrid.lineExists 1
+push argument 0
+pop pointer 0
+label WHILE_EXP0
+push local 0
+push this 3
+lt
+not
+if-goto WHILE_END0
+push this 6
+push local 0
+push argument 1
+call Matrix.get 3
+push constant 0
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 1000
+pop local 0
+goto IF_END0
+label IF_FALSE0
+push local 0
+push this 3
+push constant 1
+sub
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push argument 1
+return
+goto IF_END1
+label IF_FALSE1
+push local 0
+push constant 1
+add
+pop local 0
+label IF_END1
+label IF_END0
+goto WHILE_EXP0
+label WHILE_END0
+push argument 1
+push this 2
+push constant 1
+sub
+lt
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push pointer 0
+push argument 1
+push constant 1
+add
+call TetrisGrid.lineExists 2
+return
+label IF_FALSE2
+push constant 1
+neg
+return
+function TetrisGrid.clearLines 1
+push argument 0
+pop pointer 0
+push pointer 0
+push this 8
+call TetrisGrid.lineExists 2
+pop local 0
+push local 0
+push constant 1
+neg
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push pointer 0
+push local 0
+call TetrisGrid.clearLine 2
+pop temp 0
+push pointer 0
+push local 0
+call TetrisGrid.shiftDown 2
+pop temp 0
+push this 8
+push constant 1
+add
+pop this 8
+push this 5
+push constant 1
+add
+pop this 5
+push pointer 0
+call TetrisGrid.clearLines 1
+pop temp 0
+label IF_FALSE0
+push constant 0
+return
+function TetrisGrid.clearLine 1
+push argument 0
+pop pointer 0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+label WHILE_EXP0
+push local 0
+push this 3
+lt
+not
+if-goto WHILE_END0
+push this 6
+push local 0
+push argument 1
+push constant 0
+call Matrix.set 4
+pop temp 0
+push this 0
+push constant 1
+add
+push local 0
+push this 4
+call Math.multiply 2
+add
+push this 1
+push constant 1
+add
+push argument 1
+push this 4
+call Math.multiply 2
+add
+push this 0
+push constant 1
+sub
+push local 0
+push constant 1
+add
+push this 4
+call Math.multiply 2
+add
+push this 1
+push constant 1
+sub
+push argument 1
+push constant 1
+add
+push this 4
+call Math.multiply 2
+add
+call Screen.drawRectangle 4
+pop temp 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push constant 0
+return
+function TetrisGrid.copyLine 2
+push argument 0
+pop pointer 0
+label WHILE_EXP0
+push local 0
+push this 3
+lt
+not
+if-goto WHILE_END0
+push this 6
+push local 0
+push argument 1
+call Matrix.get 3
+pop local 1
+push local 1
+push constant 1
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+goto IF_END0
+label IF_FALSE0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+label IF_END0
+push this 0
+push constant 1
+add
+push local 0
+push this 4
+call Math.multiply 2
+add
+push this 1
+push constant 1
+add
+push argument 2
+push this 4
+call Math.multiply 2
+add
+push this 0
+push constant 1
+sub
+push local 0
+push constant 1
+add
+push this 4
+call Math.multiply 2
+add
+push this 1
+push constant 1
+sub
+push argument 2
+push constant 1
+add
+push this 4
+call Math.multiply 2
+add
+call Screen.drawRectangle 4
+pop temp 0
+push this 6
+push local 0
+push argument 2
+push local 1
+call Matrix.set 4
+pop temp 0
+push local 0
+push constant 1
+add
+pop local 0
+goto WHILE_EXP0
+label WHILE_END0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push constant 0
+return
+function TetrisGrid.shiftDown 0
+push argument 0
+pop pointer 0
+push argument 1
+push this 8
+push constant 1
+sub
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push pointer 0
+push argument 1
+push constant 1
+sub
+push argument 1
+call TetrisGrid.copyLine 3
+pop temp 0
+push pointer 0
+push argument 1
+push constant 1
+sub
+call TetrisGrid.shiftDown 2
+pop temp 0
+push argument 1
+push constant 1
+sub
+pop argument 1
+label IF_FALSE0
+push constant 0
+return
+function TetrisGrid.getHighestYMino 0
+push argument 0
+pop pointer 0
+push this 8
+return
+function TetrisGrid.getLinesCleared 0
+push argument 0
+pop pointer 0
+push this 5
+return
+function TetrisGrid.dispose 0
+push argument 0
+pop pointer 0
+push this 7
+call Block.dispose 1
+pop temp 0
+push this 6
+call Matrix.dispose 1
+pop temp 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return

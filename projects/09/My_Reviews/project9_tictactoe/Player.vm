@@ -1,0 +1,237 @@
+function Player.new 0
+push constant 4
+call Memory.alloc 1
+pop pointer 0
+push argument 0
+pop this 3
+push this 3
+call InsertXO.new 1
+pop this 0
+push pointer 0
+call Player.resetData 1
+pop temp 0
+push pointer 0
+return
+function Player.drawSymbol 0
+push argument 0
+pop pointer 0
+push this 0
+push argument 1
+call InsertXO.drawSym 2
+pop temp 0
+push constant 0
+return
+function Player.drawPlayerRecord 0
+push argument 0
+pop pointer 0
+push constant 1
+push argument 1
+call Output.moveCursor 2
+pop temp 0
+push constant 11
+call String.new 1
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+push constant 1
+push argument 1
+call Output.moveCursor 2
+pop temp 0
+push constant 3
+call String.new 1
+push constant 40
+call String.appendChar 2
+push constant 87
+call String.appendChar 2
+push constant 58
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+push this 1
+call Output.printInt 1
+pop temp 0
+push constant 3
+call String.new 1
+push constant 44
+call String.appendChar 2
+push constant 76
+call String.appendChar 2
+push constant 58
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+push this 2
+call Output.printInt 1
+pop temp 0
+push constant 1
+call String.new 1
+push constant 41
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+push constant 0
+return
+function Player.drawTurn 0
+push argument 0
+pop pointer 0
+push this 3
+push constant 1
+eq
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 0
+push constant 40
+call Output.moveCursor 2
+pop temp 0
+push constant 5
+call String.new 1
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+push constant 0
+push constant 20
+call Output.moveCursor 2
+pop temp 0
+push constant 5
+call String.new 1
+push constant 60
+call String.appendChar 2
+push constant 61
+call String.appendChar 2
+push constant 61
+call String.appendChar 2
+push constant 61
+call String.appendChar 2
+push constant 61
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+push constant 0
+return
+label IF_FALSE0
+push this 3
+push constant 2
+eq
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 0
+push constant 20
+call Output.moveCursor 2
+pop temp 0
+push constant 5
+call String.new 1
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+push constant 32
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+push constant 0
+push constant 40
+call Output.moveCursor 2
+pop temp 0
+push constant 5
+call String.new 1
+push constant 61
+call String.appendChar 2
+push constant 61
+call String.appendChar 2
+push constant 61
+call String.appendChar 2
+push constant 61
+call String.appendChar 2
+push constant 62
+call String.appendChar 2
+call Output.printString 1
+pop temp 0
+push constant 0
+return
+label IF_FALSE1
+push constant 0
+return
+function Player.setWin 0
+push argument 0
+pop pointer 0
+push this 1
+push constant 1
+add
+pop this 1
+push constant 0
+return
+function Player.setLoss 0
+push argument 0
+pop pointer 0
+push this 2
+push constant 1
+add
+pop this 2
+push constant 0
+return
+function Player.resetData 0
+push argument 0
+pop pointer 0
+push constant 0
+pop this 1
+push constant 0
+pop this 2
+push constant 0
+return
+function Player.getWin 0
+push argument 0
+pop pointer 0
+push this 1
+return
+function Player.getLoss 0
+push argument 0
+pop pointer 0
+push this 2
+return
+function Player.dispose 0
+push argument 0
+pop pointer 0
+push this 0
+call InsertXO.dispose 1
+pop temp 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return

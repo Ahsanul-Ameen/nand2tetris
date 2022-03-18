@@ -1,0 +1,85 @@
+/**
+    This class has an Array of Strings
+    First eight words are country names of length 5
+    Second eight words are   "      "    "   "    6
+    Third   "      "    "    "      "    "    "   7
+    And the last words is a country name "BANGLADESH"
+
+    Used in Game. to provide actual word that should be 
+    guessed by the player
+*/
+class Words {
+    field Array countries;  // array of countires
+
+    /** Initializes some contry of word length 5, 6, 7 and 10
+        Respective to level 1, 2, 3, and 4
+    */
+    constructor Words new() {
+        var int i;
+        let i = 0;
+        let countries = Array.new(25);
+        while(i < 25) {
+            let countries[i] = String.new(20);
+            let i = i + 1;
+        }
+        // 8 countries of length 5
+        let countries[0] = "INDIA";
+        let countries[1] = "ITALY";
+        let countries[2] = "JAPAN";
+        let countries[3] = "YEMEN";
+        let countries[4] = "LIBYA";
+        let countries[5] = "HAITI";
+        let countries[6] = "NEPAL";
+        let countries[7] = "QATAR";
+
+        // 8 countires of lenght 6
+        let countries[8] = "POLAND";
+        let countries[9] = "BRAZIL";
+        let countries[10] = "NORWAY";
+        let countries[11] = "RUSSIA";
+        let countries[12] = "FRANCE";
+        let countries[13] = "SWEDEN";
+        let countries[14] = "GREECE";
+        let countries[15] = "TURKEY";
+
+        // 8 counties of length 7
+        let countries[16] = "GERMANY";
+        let countries[17] = "ROMANIA";
+        let countries[18] = "BELARUS";
+        let countries[19] = "MOROCCO";
+        let countries[20] = "SENEGAL";
+        let countries[21] = "HUNGARY";
+        let countries[22] = "IRELAND";
+        let countries[23] = "URUGUAY";
+
+        // 1 country of length 10
+        let countries[24] = "BANGLADESH";
+
+        return this;
+    }
+
+    /**Provides a Country name according to level and indx
+        indx is somewhat random number between 0 to 7
+        Actually it is dependent on when user Entered the game
+    */
+    method String getRandomWord(int level, int indx) {
+        if(level = 4) { let indx = 0; }
+        return countries[indx + ((level - 1) * 8)];
+    }
+
+    /**Destructor*/
+    method void dispose() {
+        var int i;
+        var String w;
+        let i = 0;
+        while(i < 25) {
+            let w = countries[i];
+            do w.dispose();
+            let i = i + 1;
+        }
+        do countries.dispose();
+        // Uses an OS routine to recycle this object.
+        do Memory.deAlloc(this);
+        return;
+    }
+}

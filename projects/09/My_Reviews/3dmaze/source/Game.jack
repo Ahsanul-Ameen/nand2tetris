@@ -1,0 +1,104 @@
+// This presents a menu to the user to choose a maze and launches the maze
+// Upon return from the maze, the user is back in the menu
+
+class Game {
+    field Maze maze;
+    field Menu menu;
+
+    field int selection; // Selected maze
+
+    // State helps channel input to the correct receiver, e.g. menu and game
+    // 0 = menu, 1 = maze
+    field int state;
+
+    static int seed; // Random seed
+
+    constructor Game new() {
+        let state = 0; // Initial state
+        let selection = 1;
+        return this;
+    }
+
+    // Render the menu
+    method void drawMenu() {
+        do Screen.clearScreen();
+
+        do Output.moveCursor(4, 20);
+        do Main.printStringConst("Irrgarten 3D Maze");
+        do Output.moveCursor(5, 20);
+        do Main.printStringConst("=================");
+        do Output.moveCursor(8, 20);
+        do Main.printStringConst("[1] MAZE ONE");
+        if (selection = 1) { do Main.printStringConst(" <=="); }
+        do Output.moveCursor(10, 20);
+        do Main.printStringConst("[2] MAZE TWO");
+        if (selection = 2) { do Main.printStringConst(" <=="); }
+        do Output.moveCursor(12, 20);
+        do Main.printStringConst("[3] MAZE THREE");        
+        if (selection = 3) { do Main.printStringConst(" <=="); }
+        do Output.moveCursor(14, 20);
+        do Main.printStringConst("[R] RANDOM MAZE");        
+        if (selection = 4) { do Main.printStringConst(" <=="); }        
+        do Output.moveCursor(17, 20);
+        do Main.printStringConst("[E] Enter Maze");                
+        do Output.moveCursor(18, 20);
+        do Main.printStringConst("[Q] Quit");                        
+        return;
+    }
+
+    // Keep random seed running but not too much...
+    method void incSeed() {
+        let seed = seed + 1;
+        if (seed > 16384) { let seed = 1; } // Prevent Math Overflow in Random gen
+        return;
+    }
+
+    // Handle keyboard events for menu and to launch maze
+    method void run() {
+        var boolean exit;
+        var char key;
+
+        do drawMenu();
+
+        let exit = false;
+
+        let key = Keyboard.keyPressed();
+        while(~exit) {
+
+            // Wait until key pressed and use cycles to generate random seed
+            while (key=0) { let key = Keyboard.keyPressed(); do incSeed(); }
+
+            if (key=81) { let exit = true; } // [Q]uit
+            if (key=69) { // [E]nter maze
+                let maze = Maze.new(selection);    
+                do maze.run();
+                do maze.dispose();
+                do drawMenu();
+            }
+            if (key=49) { let selection = 1; do drawMenu(); }
+            if (key=50) { let selection = 2; do drawMenu(); }
+            if (key=51) { let selection = 3; do drawMenu(); }
+            if (key=82) { let selection = 4; do drawMenu(); }
+
+            // Wait until key released and use cycles to generate random seed
+            while (~(key=0)) { let key = Keyboard.keyPressed(); do incSeed(); }
+
+        }
+
+        // A final good-bye...
+        do Screen.clearScreen();
+        do Output.moveCursor(10,22);
+        do Main.printStringConst("THANKS FOR PLAYING!");
+
+        return;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    function int getSeed() {
+        return seed;
+    }
+}

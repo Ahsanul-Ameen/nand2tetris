@@ -1,0 +1,179 @@
+/** Implements different panel,game board, and handle message screens*/
+
+
+class Board{
+
+	field int t;
+	constructor Board new(){
+		//let t=1;
+		do drawBoard();
+		return this;
+   }
+
+	// calls various other draw functions.
+	method void drawBoard(){
+		do drawPlayerPanel();
+		do drawInstructionPanel();
+		do drawGameBorder();
+		do drawPlayArea();
+		return;
+	}
+	
+	//draw the plyare info on top line
+	method void drawPlayerPanel(){
+		//Player's Info Panel:
+		do Output.moveCursor(0,2);
+		do Output.printString("PLAYER-1:X");
+		do Output.moveCursor(0,30);
+		do Output.printString("TURN");
+		do Output.moveCursor(0,52);
+		do Output.printString("PLAYER-2:0");
+		
+		
+		
+		
+		
+		return;
+		
+		
+	}
+		
+	// display the instruction panel at left side of the screen along with
+	// error message board
+	method void drawInstructionPanel(){
+		do Output.moveCursor(3,1);
+		do Output.printString("(Instructions)");
+		do Output.moveCursor(5,0);
+		do Output.printString("Key N:New Game");
+		do Output.moveCursor(7,0);
+		do Output.printString("Key R:Reset");
+		do Output.moveCursor(9,0);
+		do Output.printString("Key Q:Quit");
+		do Output.moveCursor(11,0);
+		do Output.printString("Key (1-9):");
+		do Output.println();
+		do Output.printString("Insert in Block");
+		do Output.moveCursor(14,0);
+		do Output.printString("(Message Board)");
+		do Screen.drawRectangle(4,175,117,245);
+		return;
+	
+	
+	}
+	//draw the lines that seprate player info, instruction and play Area panels
+	method void drawGameBorder(){
+		var int i;
+		let i =0;
+		while(i<4){
+			//horizontal line
+			do  Screen.drawLine(0, 24+i, 511, 24+i);
+			do  Screen.drawLine(0, 252+i, 511, 252+i);
+				
+			// vertical lines
+			do  Screen.drawLine(122+i, 24, 122+i, 255);
+			do  Screen.drawLine(508+i, 24, 508+i, 255);
+				
+			let i = i+1;
+		}
+		return;
+	}
+	
+	//draw the game board playe area
+	method void drawPlayArea(){
+		var int i;
+		let i =0;
+		
+		// clear play area
+		do Screen.setColor(false);
+		do Screen.drawRectangle(130,31,503,247);
+		
+		//draw play area
+		do Screen.setColor(true);
+		//Outer Border
+		do Screen.drawRectangle(130,31,503,247);
+		do Screen.setColor(false);
+		do Screen.drawRectangle(133,34,500,244);
+		do Screen.setColor(true);
+			
+		while(i<3){
+		
+			//horizontal line
+			do  Screen.drawLine(133, 103+i, 500, 103+i);
+			do  Screen.drawLine(133, 175+i, 500, 175+i);
+		
+			// vertical lines
+			do  Screen.drawLine(255+i,31, 255+i, 247);
+			do  Screen.drawLine(378+i,31, 378+i, 247);
+			
+			let i = i+1;
+		}
+		
+		do displayBlockNumber(1,3);
+		do displayBlockNumber(4,10);
+		do displayBlockNumber(7,17);
+		
+		return;
+	}
+	
+	// display the block number at that block
+	method void displayBlockNumber(int num,int r){
+		var int i;
+		let i =0;
+		//inserting block number
+		while(i<3){
+			do Output.moveCursor(r,17);
+			do Output.printInt(num);
+			
+			do Output.moveCursor(r,33);
+			do Output.printInt(num+1);
+			
+			do Output.moveCursor(r,48);
+			do Output.printInt(num+2);
+			let i=i+1;
+		}
+		return;
+	}
+	
+	// shows non empty block on error message board
+	method void showNotEmpty(char k){
+		do Output.moveCursor(18,1);
+		do Screen.setColor(false);
+		do Screen.drawRectangle(7,195,114,235);
+		do Output.printString("Block ");
+		do Output.printChar(k);
+		do Output.moveCursor(19,1);
+		do Output.printString("Not Empty ");
+		do Sys.wait(2500);
+		do Screen.setColor(true);
+		
+		return;
+	
+	}
+	
+	// shows invalid key pressed on error message board
+	method void showInvalidKey(char k){
+		do Output.moveCursor(18,1);
+		do Screen.setColor(false);
+		do Screen.drawRectangle(7,195,114,235);
+		do Output.printString("Invalid Key:");
+		do Output.printChar(k);
+		do Output.moveCursor(19,1);
+		do Output.printString("|Valid Keys| ");
+		do Output.moveCursor(20,2);
+		do Output.printString(" N,R,Q,1-9");
+		do Sys.wait(2500);
+		do Screen.setColor(true);
+		
+		return;
+	
+	
+	}
+	
+	/** Disposes this board. */
+	method void dispose() {
+		do Memory.deAlloc(this);
+		return;}
+	
+	
+	
+}

@@ -1,0 +1,14 @@
+function Main.main 2
+push constant 2
+pop local 1
+push local 1
+call TetrisGame.new 1
+pop local 0
+push local 0
+call TetrisGame.run 1
+pop temp 0
+push local 0
+call TetrisGame.dispose 1
+pop temp 0
+push constant 0
+return

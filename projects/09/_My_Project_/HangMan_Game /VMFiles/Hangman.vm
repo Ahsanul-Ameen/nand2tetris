@@ -1,0 +1,271 @@
+function Hangman.new 0
+push constant 1
+call Memory.alloc 1
+pop pointer 0
+push constant 0
+pop this 0
+push pointer 0
+return
+function Hangman.dispose 0
+push argument 0
+pop pointer 0
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+push constant 0
+return
+function Hangman.increment 0
+push argument 0
+pop pointer 0
+push this 0
+push constant 1
+add
+pop this 0
+push constant 0
+return
+function Hangman.hang 0
+push argument 0
+pop pointer 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+push this 0
+push constant 1
+neg
+gt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push constant 400
+push constant 40
+push constant 400
+push constant 20
+call Screen.drawLine 4
+pop temp 0
+push constant 400
+push constant 20
+push constant 480
+push constant 20
+call Screen.drawLine 4
+pop temp 0
+push constant 480
+push constant 20
+push constant 480
+push constant 235
+call Screen.drawLine 4
+pop temp 0
+push constant 480
+push constant 235
+push constant 350
+push constant 235
+call Screen.drawLine 4
+pop temp 0
+push constant 350
+push constant 235
+push constant 480
+push constant 240
+call Screen.drawRectangle 4
+pop temp 0
+label IF_FALSE0
+push this 0
+push constant 0
+gt
+if-goto IF_TRUE1
+goto IF_FALSE1
+label IF_TRUE1
+push constant 400
+push constant 65
+push constant 25
+call Screen.drawCircle 3
+pop temp 0
+push constant 0
+call Screen.setColor 1
+pop temp 0
+push constant 400
+push constant 65
+push constant 24
+call Screen.drawCircle 3
+pop temp 0
+push constant 0
+not
+call Screen.setColor 1
+pop temp 0
+label IF_FALSE1
+push this 0
+push constant 1
+gt
+if-goto IF_TRUE2
+goto IF_FALSE2
+label IF_TRUE2
+push constant 400
+push constant 90
+push constant 400
+push constant 180
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE2
+push this 0
+push constant 2
+gt
+if-goto IF_TRUE3
+goto IF_FALSE3
+label IF_TRUE3
+push constant 400
+push constant 180
+push constant 435
+push constant 220
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE3
+push this 0
+push constant 3
+gt
+if-goto IF_TRUE4
+goto IF_FALSE4
+label IF_TRUE4
+push constant 400
+push constant 180
+push constant 365
+push constant 220
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE4
+push this 0
+push constant 4
+gt
+if-goto IF_TRUE5
+goto IF_FALSE5
+label IF_TRUE5
+push constant 400
+push constant 100
+push constant 440
+push constant 120
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE5
+push this 0
+push constant 5
+gt
+if-goto IF_TRUE6
+goto IF_FALSE6
+label IF_TRUE6
+push constant 400
+push constant 100
+push constant 360
+push constant 120
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE6
+push this 0
+push constant 6
+gt
+if-goto IF_TRUE7
+goto IF_FALSE7
+label IF_TRUE7
+push constant 435
+push constant 220
+push constant 445
+push constant 215
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE7
+push this 0
+push constant 7
+gt
+if-goto IF_TRUE8
+goto IF_FALSE8
+label IF_TRUE8
+push constant 365
+push constant 220
+push constant 355
+push constant 215
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE8
+push this 0
+push constant 8
+gt
+if-goto IF_TRUE9
+goto IF_FALSE9
+label IF_TRUE9
+push constant 440
+push constant 120
+push constant 447
+push constant 117
+call Screen.drawLine 4
+pop temp 0
+push constant 440
+push constant 120
+push constant 447
+push constant 123
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE9
+push this 0
+push constant 9
+gt
+if-goto IF_TRUE10
+goto IF_FALSE10
+label IF_TRUE10
+push constant 360
+push constant 120
+push constant 353
+push constant 117
+call Screen.drawLine 4
+pop temp 0
+push constant 360
+push constant 120
+push constant 353
+push constant 123
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE10
+push this 0
+push constant 10
+gt
+if-goto IF_TRUE11
+goto IF_FALSE11
+label IF_TRUE11
+push constant 390
+push constant 60
+push constant 395
+push constant 60
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE11
+push this 0
+push constant 11
+gt
+if-goto IF_TRUE12
+goto IF_FALSE12
+label IF_TRUE12
+push constant 405
+push constant 60
+push constant 410
+push constant 60
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE12
+push this 0
+push constant 12
+gt
+if-goto IF_TRUE13
+goto IF_FALSE13
+label IF_TRUE13
+push constant 395
+push constant 75
+push constant 405
+push constant 75
+call Screen.drawLine 4
+pop temp 0
+label IF_FALSE13
+push this 0
+push constant 13
+gt
+if-goto IF_TRUE14
+goto IF_FALSE14
+label IF_TRUE14
+label IF_FALSE14
+push constant 0
+return

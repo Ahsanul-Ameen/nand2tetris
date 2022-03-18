@@ -1,0 +1,131 @@
+/** Allows for 2D arrays with convenient getter and setter methods 
+ *
+ * Note that columns are listed here before rows (x refers to columns, y to row).
+ * This is unconventional but done to be consistent with how x, y relate to pixels
+ * when manipulating the screen.
+ */
+
+class Matrix {
+
+   field Array matrixCols;
+   field int width;
+   field int height;
+
+   constructor Matrix new(int aWidth, int aHeight) {
+      var int i, j;
+      var Array col;
+
+      let width = aWidth;
+      let height = aHeight;
+      
+      // Below is modified from code on nand2tetris message board at:
+      // http://nand2tetris-questions-and-answers-forum.32033.n3.nabble.com/2d-Arrays-td4027978.html
+      let matrixCols = Array.new(width);
+      let i = 0;
+      while (i < width){
+         let matrixCols[i] = Array.new(height);
+         let j = 0;
+         while (j < height){
+            let col = matrixCols[i];
+            let col[j] = 0;
+            let j = j + 1;
+         }
+         let i = i + 1;
+      }
+      return this;
+   }
+
+   /* Get value in matrix at position x, y */
+   method int get(int x, int y) {
+      var Array col;
+      let col = matrixCols[x];
+      return col[y];
+   }
+
+   /* Set value in matrix at position x, y */
+   method void set(int x, int y, int value) {
+      var Array col;
+      if (~(value = 0) & ~(value = 1)) {
+         do Sys.error(1);
+      }
+      let col = matrixCols[x];
+      let col[y] = value;
+      return;
+   }
+
+   /* Rotate entire matrix to the right (clockwise)
+    * Assumes matrix is square.
+    */
+   method void rotateRight() {
+      var int x, y;
+      var int i, j;
+      var int temp;
+      while (x < (width / 2)) {
+         let y = x;
+         let i = width - 1 - x;
+         while (y < (width - x - 1)) {
+            let j = width - 1 - y;
+            let temp = get(x, y);      // Store current cell in temp variable
+            do set(x, y, get(y, i));   // Move values from right to top
+            do set(y, i, get(i, j));   // Move values from bottom to right
+            do set(i, j, get(j, x));   // Move values from left to bottom
+            do set(j, x, temp);        // Assign temp to left
+            let y = y + 1;
+         }
+         let x = x + 1;
+      }
+      return;
+   }
+
+   /* Rotate entire matrix to the left (counter-clockwise)
+    * Assumes matrix is square.
+    */
+   method void rotateLeft() {
+      var int x, y;
+      var int i, j;
+      var int temp;
+      while (x < (width / 2)) {
+         let y = x;
+         let i = width - 1 - x;
+         while (y < (width - x - 1)) {
+            let j = width - 1 - y;
+            let temp = get(x, y);      // Store current cell in temp variable
+            do set(x, y, get(j, x));
+            do set(j, x, get(i, j));
+            do set(i, j, get(y, i));
+            do set(y, i, temp);
+            let y = y + 1;
+         }
+         let x = x + 1;
+      }
+      return;
+   }
+
+   /* Prints matrix out to Screen */
+   method void printMatrix() {
+      var int i, j;
+      var Array col;
+      while (i < height){
+         let j = 0;
+         while (j < width){
+            let col = matrixCols[j];
+
+            do Output.printInt(col[i]);
+
+            let col[j] = 0;
+            let j = j + 1;
+         }
+         do Output.moveCursor(i, 0);
+         let i = i + 1;
+      }
+      return;
+   }
+
+   /* Dispose this matrix */
+   method void dispose() {
+      do Memory.deAlloc(this);
+      return;
+   }
+
+}
+

@@ -1,0 +1,271 @@
+/** Developed for Online course Nand 2 Tetris Part II on Coursera.org
+ * by Akash Yadav (India)
+ * This program implements the Tic-Tac-toe (Crosses & Naughts) game.
+ * Two Player can play this game. The First Player has "X" symbol and second 
+ * player has "O" symbol. the plyaer enter the block number and his symbol will
+ * be inserted in that block. The player whose symbol occupy any row/column/diagnol
+ * fully wins the game. The key's action are as follows:
+ *
+ * Key 1-9: Insert the current player's symbol into block of that number
+ *
+ * Key N: Start the new game; if pressed in the middle of a game than game will be
+ *        considered as a Draw. Even if its a new game and again N is pressed.
+ * 
+ * Key R: Reset all the win and loss records of a player and start a new game.
+ * 		
+ * Key Q: clear the Screen and Quit the game.
+ * 
+ * Error Message Board (Black Rectangle at bottom-left corner) shows following error message:
+ * Invalid Key pressed: if any other key is pressed.
+ * Non-Empty Block: if player select a Non-empty block.
+ *  
+ */
+
+
+
+
+class TicTacToe{
+	field Board board;
+	field Player p1,p2;
+	field int draw,blockIndex,playerTurn,winner;
+	field Array blockData;
+	
+	constructor TicTacToe new(){
+	  let blockData = Array.new(9);
+      let board = Board.new();
+	  let p1=Player.new(1);
+	  let p2=Player.new(2);
+	  
+	  do resetGameData();
+      return this;
+	  
+   }
+
+	method void start(){
+		var char key;
+		var int turn;
+		var boolean gameFlag,messageFlag;
+		
+		// Game will run until the user press Q
+		while(~(key=81)){ 
+			let gameFlag = false;
+			let turn = 1;
+			while(turn<10){
+				
+				let key = Keyboard.keyPressed();
+				
+				// reset error display board (Bottom-Left Black Rectangle)
+				if(messageFlag){
+					do Screen.drawRectangle(4,175,117,245);
+					let messageFlag=false;
+					}
+				
+				// Quit the game
+				if(key=81){return;}
+			
+				// start new game
+				if(key=78){let turn=turn+11;do Sys.wait(200);}
+			
+				//reset game data
+				else{if(key=82){
+					let gameFlag=true;	
+					let turn=turn+11;do Sys.wait(200);
+				}
+			
+				// insert player's symbol into block number entered by player
+				else{if((key>48)&(key<58)){
+					
+					// get the select block number
+					do setBlockIndex(key);
+				
+					// if selected block is empty
+					if(blockData[blockIndex]=0){
+						let turn= showMove(turn+1);
+						do Sys.wait(200);
+					}
+					// Non emepty block is selected. Show error message.
+					else{do board.showNotEmpty(key);let messageFlag=true;}
+				}
+				
+				// invalid key presse.Show error message. 
+				else{if(key>0){do board.showInvalidKey(key);let messageFlag=true;}}}}
+				
+			}// current game ends
+			
+			// Show message
+			do Screen.setColor(false);
+			do Screen.drawRectangle(133,34,500,244);
+			do Screen.setColor(true);
+			do Output.moveCursor(12,35);
+			if (gameFlag){
+				do Output.printString("GAME RECORDS RESET");
+				do Sys.wait(2000);
+				do resetGameData();
+				
+			}
+			else{
+				do setWinner();
+				do newGame();
+			}
+			
+		
+		}// Quit while 
+		
+		
+		
+		return;
+	}
+	
+	// this function display the player's symbol on board
+	// and swap the turn
+	method int showMove(int i){
+		var boolean gameStop;
+		
+		let blockData[blockIndex]=playerTurn;
+		let gameStop = checkGame();
+		if(playerTurn=1){	
+			do p1.drawSymbol(blockIndex);
+			
+			let playerTurn=2;
+			
+			if(gameStop){
+				let winner =1;
+				let i = 11;
+			}
+			do p2.drawTurn();
+		}	
+	
+		else{	
+			do p2.drawSymbol(blockIndex);
+			let playerTurn=1;
+			
+			if(gameStop){
+				let winner =2;
+				let i = 11;
+			}
+			do p1.drawTurn();
+		}
+		return i;
+	}
+	
+	// function to update win/loss record 
+	// and show draw/winner message
+	method void setWinner()
+	{
+		
+			
+		if (winner=0){
+			do Output.printString("DRAW");
+			let draw=draw+1;
+			
+		}
+			
+		else{if (winner=1){
+				do Output.printString("WINNER PLAYER-1");
+				do p1.setWin();
+				do p2.setLoss();
+				
+				
+			}
+		else{
+				do Output.printString("WINNER PLAYER-2");
+				do p2.setWin();
+				do p1.setLoss();
+				
+			}}
+			do Sys.wait(2000);
+			return;
+	}
+	
+	// this method check the win condition evry time a user insert a symbol.
+	method boolean checkGame()
+	{
+		//border win condition
+		if(blockData[0]){
+			if((blockData[0]=blockData[1])&(blockData[0]=blockData[2]))		{return true;}	
+			if((blockData[0]=blockData[3])&(blockData[0]=blockData[6]))		{return true;}
+		}
+		if(blockData[8]){
+			if((blockData[2]=blockData[5])&(blockData[5]=blockData[8]))  	{return true;}
+			if((blockData[6]=blockData[7])&(blockData[7]=blockData[8]))  	{return true;}
+		}
+		//diagonal win condition
+		if(blockData[4]){
+			if((blockData[0]=blockData[4])&(blockData[0]=blockData[8]))		{return true;}
+			if((blockData[2]=blockData[4])&(blockData[2]=blockData[6]))  	{return true;}
+
+			//internal win condition
+			if((blockData[3]=blockData[4])&(blockData[3]=blockData[5]))		{return true;}
+			if((blockData[1]=blockData[4])&(blockData[1]=blockData[7]))  	{return true;}
+		}
+		return false;
+	}
+	
+	// start a new game
+	method void newGame(){
+		let winner=0;
+		let playerTurn = 1;
+		do resetBlockData();
+		do board.drawPlayArea();
+		do p1.drawPlayerRecord(2);
+		do p2.drawPlayerRecord(52);
+		do displayDrawRecord();
+		do p1.drawTurn();
+		return;
+	}
+	
+	// reset all win/loss record and start a new game
+	method void resetGameData(){
+		
+		let draw = 0;
+		do p1.resetData();
+		do p2.resetData();
+		
+		do newGame();
+		return;
+	}
+	
+	
+	// display the number of draw game in top-middle of screen(below turn)
+	method void displayDrawRecord(){
+		do Output.moveCursor(1,28);
+		do Output.printString("          ");
+		do Output.moveCursor(1,28);
+		do Output.printString("(Draw:");
+		do Output.printInt(draw);	
+		do Output.printString(")");
+		return;
+	}
+	
+	// function to ghet the block number selected by player
+	method void setBlockIndex(char k){
+		var int retVal;
+		if(k=49)	{let blockIndex= 0;return;}
+		if(k=50)	{let blockIndex= 1;return;}
+		if(k=51)	{let blockIndex= 2;return;}
+		if(k=52)	{let blockIndex= 3;return;}
+		if(k=53)	{let blockIndex= 4;return;}
+		if(k=54)	{let blockIndex= 5;return;}
+		if(k=55)	{let blockIndex= 6;return;}
+		if(k=56)	{let blockIndex= 7;return;}
+		else		{let blockIndex= 8;return;}
+	}
+	
+	//reset the data which was used to keep track of non-empty block
+	method void resetBlockData() {	
+		var int i;
+		let i =0;
+		while(i<9){ let blockData[i]=false;
+					let i=i+1;}
+		return;
+	}
+	
+	// destory the object and free the memory	
+	method void dispose() {
+		do board.dispose();
+		do p1.dispose();
+		do p2.dispose();
+		do Memory.deAlloc(this);
+		return;
+	}
+}

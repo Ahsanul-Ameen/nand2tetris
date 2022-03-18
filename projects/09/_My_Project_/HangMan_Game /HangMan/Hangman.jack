@@ -1,0 +1,87 @@
+/**
+	This is a utility class for draw the Hang Man in the screen mostly managed by game class
+	HangMan has a hang count variable
+	each time its increment causes the hang man to hang more 
+*/
+class Hangman {
+    field int cnt;
+
+    /** Constructs a Hangman */
+    constructor Hangman new() {
+        let cnt = 0;
+        return this;
+    }
+
+    /** Destructs the Hangman */
+    method void dispose() {
+        // Uses an OS routine to recycle this object.
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Hang more parts of Hangman */
+    method void increment() {
+        let cnt = cnt + 1;
+        return;
+    }
+
+    /** Utility method that performs HangMan drawing */
+    method void hang() {
+        do Screen.setColor(true);
+        if(cnt > -1) {  // cnt >= 0
+            do Screen.drawLine(400, 40, 400, 20);
+            do Screen.drawLine(400, 20, 480, 20);
+            do Screen.drawLine(480, 20, 480, 235);
+            do Screen.drawLine(480, 235, 350, 235);
+            do Screen.drawRectangle(350, 235, 480, 240);
+        }
+        if(cnt > 0) {   // cnt >= 1
+            do Screen.drawCircle(400, 65, 25);
+            do Screen.setColor(false);
+            do Screen.drawCircle(400, 65, 24);
+            do Screen.setColor(true);
+        }
+        if(cnt > 1) {   // cnt >= 2
+            do Screen.drawLine(400, 90, 400, 180);
+        }
+        if(cnt > 2) {   // cnt >= 3
+            do Screen.drawLine(400, 180, 435, 220);
+        }
+        if(cnt > 3) {   // cnt >= 4
+            do Screen.drawLine(400, 180, 365, 220);
+        }
+        if(cnt > 4) {   // cnt >= 5
+            do Screen.drawLine(400, 100, 440, 120);
+        }
+        if(cnt > 5) {   // cnt >= 6
+            do Screen.drawLine(400, 100, 360, 120);
+        }
+        if(cnt > 6) {   // cnt >= 7
+            do Screen.drawLine(435, 220, 445, 215);
+        }
+        if(cnt > 7) {   // cnt >= 8
+            do Screen.drawLine(365, 220, 355, 215);
+        }
+        if(cnt > 8) {   // cnt >= 9
+            do Screen.drawLine(440, 120, 447, 117);
+            do Screen.drawLine(440, 120, 447, 123);
+        }
+        if(cnt > 9) {   // cnt >= 10
+            do Screen.drawLine(360, 120, 353, 117);
+            do Screen.drawLine(360, 120, 353, 123);
+        }
+        if(cnt > 10) {   // cnt >= 11
+            do Screen.drawLine(390, 60, 395, 60);
+        }
+        if(cnt > 11) {   // cnt >= 12
+             do Screen.drawLine(405, 60, 410, 60);
+        }
+        if(cnt > 12) {   // cnt >= 13
+            do Screen.drawLine(395, 75, 405, 75);
+        }
+        if(cnt > 13) {   // cnt >= 14
+            // do nothing
+        }
+        return;
+    }
+}

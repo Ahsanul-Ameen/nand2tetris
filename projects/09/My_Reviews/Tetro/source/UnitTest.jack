@@ -1,0 +1,202 @@
+/**
+ * Runs formal tests to ensure long-term program stability.  Contains functions
+ * which should be used by a `Tests` class to assert certain outcomes.
+ *
+ * @author Jackson Ray Hamilton
+ */
+class UnitTest {
+
+  /**
+   * Describes the reason for a test's failure and halts.
+   */
+  function void fail(String description, String reason, String expectedMessage,
+                     String expected, String resultMessage, String result) {
+    var Array args;
+
+    // Optional parameter.
+    if (expectedMessage = null) {
+      let expectedMessage = "Expected";
+    }
+
+    // Optional parameter.
+    if (resultMessage = null) {
+      let resultMessage = "Result";
+    }
+
+    do Output.moveCursor(0, 0);
+
+    do Out.println("Tests failed!");
+
+    let args = Array.new(3);
+
+    let args[0] = String.doubleQuote();
+    let args[1] = description;
+    let args[2] = String.doubleQuote();
+    do Out.printfln("Description: %c%s%c", args);
+
+    let args[0] = reason;
+    do Out.printfln("Reason: %s", args);
+
+    let args[0] = expectedMessage;
+    let args[1] = expected;
+    do Out.printfln("%s: %s", args);
+
+    let args[0] = resultMessage;
+    let args[1] = result;
+    do Out.printfln("%s: %s", args);
+
+    do args.dispose();
+
+    do Sys.halt();
+
+    return;
+  }
+
+  /**
+   * Calling `UnitTest.assertXEquals()` allows you to check whether a
+   * method/function is returning what it is supposed to return.
+   *
+   * Example usage:
+   *
+   * ```
+   * UnitTest.assertIntEquals(
+   *   "Ensure that 2 is the min of {2, 3}.", 2, Math.min(2, 3)
+   * );
+   * ```
+   *
+   * @param description A brief explanation of what is being tested.
+   * @param expected The expected (correct) outcome of the method/function.
+   * @param result The return value of the method/function goes here.
+   */
+  function void assertIntEquals(String description, int expected, int result) {
+    if (~(expected = result)) {
+      do UnitTest.fail(description,
+                       "Incorrect int value.",
+                       null, Strings.coerceInt(expected),
+                       null, Strings.coerceInt(result));
+    }
+    return;
+  }
+
+  /**
+   * Fails if a char is incorrect.
+   */
+  function void assertCharEquals(String description, char expected, char result) {
+    if (~(expected = result)) {
+      do UnitTest.fail(description,
+                       "Incorrect char value.",
+                       null, Strings.coerceChar(expected),
+                       null, Strings.coerceChar(result));
+    }
+    return;
+  }
+
+  /**
+   * Fails if false.
+   */
+  function void assertTrue(String description, boolean result) {
+    if (~result) {
+      do UnitTest.fail(description,
+                       "Not true.",
+                       null, Strings.coerceBoolean(true),
+                       null, Strings.coerceBoolean(result));
+    }
+    return;
+  }
+
+  /**
+   * Fails if true.
+   */
+  function void assertFalse(String description, boolean result) {
+    if (result) {
+      do UnitTest.fail(description,
+                       "Not false.",
+                       null, Strings.coerceBoolean(false),
+                       null, Strings.coerceBoolean(result));
+    }
+    return;
+  }
+
+  /**
+   * Fails if a string's length is different.
+   */
+  function void assertStringLengthEquals(String description, String expected,
+                                         String result) {
+    var int expectedLength, resultLength;
+    var Array args;
+
+    let expectedLength = expected.length();
+    let resultLength = result.length();
+
+    if (expectedLength = resultLength) {
+      return;
+    }
+
+    let args = Array.new(2);
+    let args[0] = result;
+    let args[1] = expected;
+    do UnitTest.fail(description,
+                     Strings.sprintf(
+                       "Length of result string `%s' unequal to length of expected string `%s'.",
+                       args),
+                     "Expected length", Strings.coerceInt(expectedLength),
+                     "Result length", Strings.coerceInt(resultLength));
+    do args.dispose();
+
+    return;
+  }
+
+  /**
+   * Fails if any character in a string is different.
+   */
+  function void assertStringCharsEquals(String description, String expected,
+                                        String result) {
+    var int i, length;
+    var char expectedChar, resultChar;
+    var Array args;
+    var String reason;
+
+    let i = 0;
+    let length = expected.length();
+    while (i < length) {
+      let expectedChar = expected.charAt(i);
+      let resultChar = result.charAt(i);
+      if (~(expectedChar = resultChar)) {
+        let args = Array.new(2);
+
+        let args[0] = i;
+        let args[1] = String.newLine();
+        let reason = Strings.sprintf("Chars not same at index `%i'.%c", args);
+
+        let args[0] = result;
+        let args[1] = String.newLine();
+        let reason = Strings.concat(reason, Strings.sprintf("%s%c", args));
+
+        let args[0] = Strings.repeat(" ", i);
+        let args[1] = "^";
+        let reason = Strings.concat(reason, Strings.sprintf("%s%s", args));
+
+        do args.dispose();
+
+        do UnitTest.fail(description,
+                         reason,
+                         "Expected char", Strings.coerceChar(expectedChar),
+                         "Result char", Strings.coerceChar(resultChar));
+      }
+      let i = i + 1;
+    }
+
+    return;
+  }
+
+  /**
+   * Fails if a string is not the same.
+   */
+  function void assertStringEquals(String description, String expected,
+                                   String result) {
+    do UnitTest.assertStringLengthEquals(description, expected, result);
+    do UnitTest.assertStringCharsEquals(description, expected, result);
+    return;
+  }
+
+}

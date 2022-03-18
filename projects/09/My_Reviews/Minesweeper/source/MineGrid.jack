@@ -1,0 +1,459 @@
+/**
+ * MineGrid
+ * a class for representing mine block
+ */
+class MineGrid
+{
+    field int row, col; // number of row and column 
+    field Array display; // 2-dim array of number display
+    field int x, y; // current location
+    field int totalMines, moves; // total mines and moves
+    field boolean isFail; // is fail?
+
+    /**
+     * constructor
+     * initialize row, col and display
+     */
+    constructor MineGrid new(int r, int c, int m)
+    {
+        var int i, j;
+        var Array temp;
+        let row = r; let col = c; let totalMines = m;
+        let x = 0; let y = 0; let moves = 0; let isFail = false;
+        
+        // initialize display
+        let display = Array.new(row);
+        let i = 0;
+        while (i < row)
+        {
+            let temp = Array.new(col);
+            let j = 0;
+            while (j < col)
+            {
+                // note: the first 16 pixel of row is reserved, so row i is (i + 1) * 16. and col i is i * 16
+                let temp[j] = MineBlock.new((i + 1) * 16, j * 16, 0);
+                let j = j + 1;
+            }
+            let display[i] = temp;
+            let i = i + 1;
+        }
+        return this;
+    }
+
+    // move functions
+    method void moveUp()
+    {
+        if (x = 0) {return;}
+        let x = x - 1;
+        return;
+    }
+    method void moveDown()
+    {
+        if (x = (row - 1)) {return;}
+        let x = x + 1;
+        return;
+    }
+    method void moveLeft()
+    {
+        if (y = 0) {return;}
+        let y = y - 1;
+        return;
+    }
+    method void moveRight()
+    {
+        if (y = (col - 1)) {return;}
+        let y = y + 1;
+        return;
+    }
+
+    // get current block
+    method MineBlock getCurrent()
+    {
+        var Array temp;
+        let temp = display[x];
+        return temp[y];
+    }
+
+    /**
+     * flagCurrent
+     * flag current selected block
+     */
+    method void flagCurrent()
+    {
+        var MineBlock temp;
+        let temp = getCurrent();
+        do temp.flipFlag();
+        if (temp.isFlag())
+        {
+            let totalMines = totalMines - 1;
+        }
+        else
+        {
+            let totalMines = totalMines + 1;
+        }
+        return;
+    }
+
+    // convenient function
+    method boolean haveMine(int i, int j)
+    {
+        var Array temp; var MineBlock temp2;
+        let temp = display[i]; let temp2 = temp[j];
+        return temp2.isMine();
+    }
+
+    /**
+     * initiateMines
+     * avoid current block
+     */
+    method void initiateMines()
+    {
+        var int curX, curY, i, j, stat;
+        var Array temp; var MineBlock cur;
+        while (i < totalMines)
+        {
+            let curX = x; let curY = y;
+            let cur = getCurrent();
+            while (cur.isMine() | ((curX = x) & (curY = y)))
+            {
+                let curX = Random.random(row); let curY = Random.random(col);
+                let temp = display[curX]; let cur = temp[curY];
+            }
+            do cur.setMine(true);
+            let i = i + 1;
+        }
+
+        // update statistics
+        let i = 0;
+        while (i < row)
+        {
+            let temp = display[i];
+            let j = 0;
+            while (j < col)
+            {
+                let cur = temp[j];
+                if (~cur.isMine())
+                {
+                    // find 8-direction neighbors
+                    let stat = 0;
+                    if (i > 0) {if (haveMine(i - 1, j)) {let stat = stat + 1;}} // left
+                    if (j > 0) {if (haveMine(i, j - 1)) {let stat = stat + 1;}} // up
+                    if (i < (row - 1)) {if (haveMine(i + 1, j)) {let stat = stat + 1;}} // right
+                    if (j < (col - 1)) {if (haveMine(i, j + 1)) {let stat = stat + 1;}} // down
+                    if ((i > 0) & (j > 0)) {if (haveMine(i - 1, j - 1)) {let stat = stat + 1;}} // upper-left
+                    if ((i > 0) & (j < (col - 1))) {if (haveMine(i - 1, j + 1)) {let stat = stat + 1;}} // down-left
+                    if ((i < (row - 1)) & (j > 0)) {if (haveMine(i + 1, j - 1)) {let stat = stat + 1;}} // upper-right
+                    if ((i < (row - 1)) & (j < (col - 1))) {if (haveMine(i + 1, j + 1)) {let stat = stat + 1;}} // down-right
+                    do cur.setNumber(stat);
+                }
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+        return;
+    }
+
+    /**
+     * isWin
+     * detect if the program wins
+     */
+    method boolean isWin()
+    {
+        var int i, j;
+        var Array temp;
+        var MineBlock temp2;
+
+        // criteria: if there are invisible non-mine block then the game is not win
+        let i = 0;
+        while (i < row)
+        {
+            let temp = display[i];
+            let j = 0;
+            while (j < col)
+            {
+                let temp2 = temp[j];
+                if ((~temp2.isVisible()) & (~temp2.isMine()))
+                {
+                    return false;
+                }
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+        return true;
+    }
+
+    /**
+     * openCurrent
+     * open current block
+     */
+    method void openCurrent()
+    {
+        var MineBlock current;
+        let current = getCurrent();
+        let moves = moves + 1;
+
+        if (current.isMine())
+        {
+            let isFail = true;
+            return;
+        }
+        if (current.isVisible())
+        {
+            do numberClicked();
+        }
+        do current.setVisible();
+        if (current.getNumber() = 0)
+        {
+            do floodfillWrap(x, y);
+        }
+        return;
+    }
+
+    /**
+     * numberClicked
+     * check if the surrounding mine is equal to actual mines
+     */
+    method void numberClicked()
+    {
+        var int actualMines, i, j;
+        var Array temp;
+        var MineBlock current;
+
+        let i = Math.max(x, 1) - 1;
+        while (i < Math.min(x + 2, row))
+        {
+            let j = Math.max(y, 1) - 1;
+            let temp = display[i];
+            while (j < Math.min(y + 2, col))
+            {
+                let current = temp[j];
+                if (current.isFlag())
+                {
+                    let actualMines = actualMines + 1;
+                }
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+
+        let current = getCurrent();
+        if (current.getNumber() = actualMines)
+        {
+            // open all the neighbours
+            let i = Math.max(x, 1) - 1;
+            while (i < Math.min(x + 2, row))
+            {
+                let j = Math.max(y, 1) - 1;
+                let temp = display[i];
+                while (j < Math.min(y + 2, col))
+                {
+                    let current = temp[j];
+                    if (~current.isFlag())
+                    {
+                        do current.setVisible();
+                        do floodfillWrap(i, j);
+                        if (current.isMine())
+                        {
+                            let isFail = true;
+                            return;
+                        }
+                    }
+                    let j = j + 1;
+                }
+                let i = i + 1;
+            }
+        }
+
+        return;
+    }
+
+    // wrapper for floodfill
+    method void floodfillWrap(int i2, int j2)
+    {
+        // initialize vis
+        var Array vis, temp;
+        var int i, j;
+        let vis = Array.new(row);
+        let i = 0;
+        while (i < row)
+        {
+            let temp = Array.new(col);
+            let j = 0;
+            while (j < col)
+            {
+                let temp[j] = false;
+                let j = j + 1;
+            }
+            let vis[i] = temp;
+            let i = i + 1;
+        }
+
+        // call floodfill
+        do floodfill(vis, i2, j2);
+
+        // dispose
+        let i = 0;
+        while (i < row)
+        {
+            let temp = vis[i];
+            do temp.dispose();
+            let i = i + 1;
+        }
+        do vis.dispose();
+        return;
+    }
+
+    /**
+     * floodfill
+     * fill all the non-mine block around this
+     */
+    method void floodfill(Array vis, int i, int j)
+    {
+        var Array temp;
+        var MineBlock current;
+
+        // check vis[i][j]
+        let temp = vis[i];
+        if (temp[j]) {return;}
+        let temp[j] = true;
+
+        // check current block
+        let temp = display[i];
+        let current = temp[j];
+        if (current.isMine()) {return;}
+        do current.setVisible();
+        if (current.getNumber() > 0) {return;}
+
+        // blank block, fill every neighbours
+        if (i > 0) {do floodfill(vis, i - 1, j);}
+        if (j > 0) {do floodfill(vis, i, j - 1);}
+        if (i < (row - 1)) {do floodfill(vis, i + 1, j);}
+        if (j < (col - 1)) {do floodfill(vis, i, j + 1);}
+        if ((i > 0) & (j > 0)) {do floodfill(vis, i - 1, j - 1);}
+        if ((i > 0) & (j < (col - 1))) {do floodfill(vis, i - 1, j + 1);}
+        if ((i < (row - 1)) & (j > 0)) {do floodfill(vis, i + 1, j - 1);}
+        if ((i < (row - 1)) & (j < (col - 1))) {do floodfill(vis, i + 1, j + 1);}
+
+        return;
+    }
+
+    /**
+     * draw
+     * draw this grid
+     * return false if the game ends
+     */
+    method boolean draw()
+    {
+        var int i, j, t1, t2;
+        var Array temp;
+        var MineBlock temp2;
+        var String tempStr;
+
+        do Screen.clearScreen();
+
+        if (isFail)
+        {
+            // open all the blocks
+            let i = 0;
+            while (i < row)
+            {
+                let temp = display[i];
+                let j = 0;
+                while (j < col)
+                {
+                    let temp2 = temp[j];
+                    do temp2.setVisible();
+                    let j = j + 1;
+                }
+                let i = i + 1;
+            }
+        }
+
+        let temp2 = getCurrent(); do temp2.setFocus(true);
+
+        // draw all the blocks
+        let i = 0;
+        while (i < row)
+        {
+            let temp = display[i];
+            let j = 0;
+            while (j < col)
+            {
+                let temp2 = temp[j];
+                do temp2.draw();
+                let j = j + 1;
+            }
+            let i = i + 1;
+        }
+
+        let temp2 = getCurrent(); do temp2.setFocus(false);
+
+        // draw seperate lines
+        let t1 = (col * 16) - 1; let t2 = ((row + 1) * 16) - 1;
+        // horizontal
+        let i = 1;
+        while (i < (row + 2))
+        {
+            do Screen.drawLine(0, (i * 16) - 1, t1, (i * 16) - 1);
+            let i = i + 1;
+        }
+
+        // vertical
+        let j = 0;
+        while (j < (col + 1))
+        {
+            do Screen.drawLine(j * 16, 16, j * 16, t2);
+            let j = j + 1;
+        }
+
+        // detect win/lose
+        do Output.moveCursor(0, 0);
+        if (isFail | isWin())
+        {
+            if (isFail)
+            {
+                let tempStr = "failed";
+            }
+            else
+            {
+                let tempStr = "win";
+            }
+            do Main.printStr("You "); do Main.printStr(tempStr); do Main.printStr(" after "); do Output.printInt(moves);
+            if (moves = 1)
+            {
+                do Main.printStr(" move. ");
+            }
+            else
+            {
+                do Main.printStr(" moves. ");
+            }
+            return false;
+        }
+
+        // print status line
+        do Main.printStr("moves = "); do Output.printInt(moves); do Main.printStr(", mines left = "); do Output.printInt(totalMines);
+        return true;
+    }
+
+    /**
+     * dispose
+     * act as destructor
+     * must be call once at last
+     */
+    method void dispose()
+    {
+        var int i;
+        var Array temp;
+        let i = 0;
+        while (i < row)
+        {
+            let temp = display[i];
+            do temp.dispose();
+            let i = i + 1;
+        }
+        do display.dispose();
+        return;
+    }
+}
+

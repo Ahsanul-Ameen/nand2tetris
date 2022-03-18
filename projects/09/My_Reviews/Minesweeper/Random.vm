@@ -1,0 +1,62 @@
+function Random.init 0
+push argument 0
+pop static 0
+push constant 0
+return
+function Random.next 6
+push constant 15859
+pop local 0
+push constant 32749
+pop local 1
+push constant 32767
+pop local 4
+push local 4
+push local 0
+call Math.divide 2
+pop local 2
+push local 4
+push local 2
+push local 0
+call Math.multiply 2
+sub
+pop local 3
+push static 0
+push local 2
+call Math.divide 2
+pop local 5
+push local 0
+push static 0
+push local 5
+push local 2
+call Math.multiply 2
+sub
+call Math.multiply 2
+push local 3
+push local 5
+call Math.multiply 2
+sub
+pop static 0
+push static 0
+push constant 0
+lt
+if-goto IF_TRUE0
+goto IF_FALSE0
+label IF_TRUE0
+push static 0
+push local 4
+add
+pop static 0
+label IF_FALSE0
+push static 0
+return
+function Random.random 1
+call Random.next 0
+pop local 0
+push local 0
+push local 0
+push argument 0
+call Math.divide 2
+push argument 0
+call Math.multiply 2
+sub
+return

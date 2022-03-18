@@ -1,0 +1,18 @@
+class Main {
+
+    function void main() {
+      var Game game;
+      let game = Game.new();
+      do game.run();
+      do game.dispose();
+      return;
+    }
+
+    // Solution to String literal memory leak problem thanks to Mark Armbrust
+    // https://www.coursera.org/learn/nand2tetris2/discussions/all/threads/cw5bvParEeaIjwovgVtlYg
+    function void printStringConst(String str) {
+        do Output.printString(str);
+        do str.dispose();
+        return;
+    }  
+}
