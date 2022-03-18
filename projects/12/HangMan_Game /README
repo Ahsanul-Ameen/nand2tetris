@@ -1,0 +1,49 @@
+--------------------------------------------Documented by: Ahsanul Ameen----------------------------------------------------
+
+In this project, the user will experience a very simple form of the famous HangMan game.
+According to game level, player has to guess a valid country name 
+If the player finds it in at most 13 trials then he/she wins otherwise lose.
+
+
+GamePlay instructions on VMEmulator:
+Please don't forget to select "No animation". 
+There are two folders containing the VM files... "HangMan" which is the original project
+and also the only "VMFiles".
+
+Any of the two folders can be choosen in the VMEmulator to run the program. But it is recommended
+to use the "HangMan" folder as for that VMEmulator will use built-in OS VM files and hence will performs fast.
+Otherwise animation may be delayed 
+
+After a full play the program will halt. 
+	In case you wish to run again, then carefully follow the steps...
+	- Stop the program by pressing the Stop button
+	- Reset the stack frame by pressing the Reset button
+	- Run the program again and play...
+	Repeat those steps as you please.
+
+
+HangMan:
+There are four .jack files 
+	Main.jack - contains the driver programs
+	Game.jack - contains vast logic, methods and variables required for GamePlay
+	Hangman.jack - contains utility codes for drawing a hangman in the screen 
+	Words.jack - contains utility codes for word(country) list that will be used arbitrarily
+	
+Intentionally I avoid singleton design pattern for this project. Althought it might be used purposefully.
+There are less use of static fields and methods. Though they can be used in the Utility classes
+Hopefully no memory leak.
+
+
+My first intention was to make Space Invaders game. Then I tried about two days and got cool success.
+But then I felt tired after trying to manage arrays of object and 'THIS' heap segment erro on the emulator.
+Eventually I quit and planned to make this little lovely HangMan game.
+
+GamePlay tips as a player:
+	If you wan't to cheat you can open the Word.jack file from Source code and invest your time...
+	
+
+Bugs?
+I've tried it in both Windows and Linux and succeded. If there are any unintentional bugs poping up, please let me know if possible.
+	
+
+Finally, Thanks a lot for reading thus fur.	

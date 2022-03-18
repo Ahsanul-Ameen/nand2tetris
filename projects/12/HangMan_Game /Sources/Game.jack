@@ -1,0 +1,226 @@
+/** This is the actual game class
+    it has a hangman object for drawing
+    also all other interactive tasks are performed by this class
+    It creates an One-Time play for user
+
+    Methods are dependent on one another
+    So it might be a mild cumbersome who first time looks at the code.
+    But with time it should make sence
+*/
+class Game {
+    field String message;       // message that need to be displayed frequently
+    field int level;            // level of game (1 to 3)
+    field Array options;        // possible left characters
+    field boolean game_over;    // status of game 
+    field int trial_left;       // how many parts of hangman have not been hanged so far
+    field int valid_guess_cnt;  // count the number of valid guesses
+    field String word;          // the actual word choosed by the game
+    field String guess;         // word constructed from blank and only by valid guess
+    field Strign size;          // size of the actual word;
+    field Words country;        // object to get a country
+    field Hangman hangman;      // object of hangman;
+
+    /** Constructs a brand new Game */
+    constructor Game new() {
+        let message = String.new(30);   // max allowed message length is 30
+        let level = readLevel();        // read the level from player
+        do initOptions();               // fill the optoins array
+        let game_over = false;          // initially we're starting the game
+        let trial_left = 13;               // initially no parts have been hanged
+        let valid_guess_cnt = 0;        
+        let word = String.new(20);      // max guess word size is 20
+        let guess = String.new(20);     
+        let size = 0;                   // initially size is 0
+        let country = Words.new();       // generates a new country object
+        let hangman = Hangman.new();     // construct a hangman
+        return this;
+    }
+
+
+    /** Destructs the object */
+    method void dispose() {
+        do message.dispose();
+        do options.dispose();
+        do word.dispose();
+        do guess.dispose();
+        do country.dispose();
+        do hangman.dispose();
+        // Uses an OS routine to recycle this object.
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Reads the level from user */
+    method int readLevel() {
+        var int l;
+        let l = 0;
+        do Output.printString("   ~~~ In this game, you've to guess a country name ~~~ ");
+        do Output.println();
+        do Output.println();
+        do Sys.wait(1000);
+        while((l < 1) | (l > 4)) {
+            let l = Keyboard.readInt("    Enter a level [1 to 4] : ");
+        }
+        do Screen.clearScreen();
+        return l;
+    }
+
+
+    /** Initialize the options array with A-Z as probable options for guesses*/
+    method void initOptions() {
+        var int i, length;
+        let i = 0;
+        let length = 26;
+        let options = Array.new(length);
+        while(i < length) {
+            let options[i] = i + 65;
+            let i = i + 1;
+        }
+        return;
+    }
+
+    /** get a seed(Inded of original word to be guessed) by counting waiting time from user */
+    method int getSeed() {
+        var int seed;
+        let seed = 0;
+        do Output.moveCursor(1, 1);
+        do Output.printString("   Welcome! Press [ E ] to start game: ");
+        while(~(Keyboard.keyPressed() = 69)) {
+            let seed = seed + 1;
+            let seed  = seed & 7;
+        }
+        do Sys.wait(100);
+        do Screen.clearScreen();
+        return seed;
+    }
+
+    /** generates a blank guess word */
+    method void initGuess() {
+        var int i;
+        let i = 0;
+        while(i < size) {
+            let guess =  guess.appendChar(95);
+            let i = i + 1;
+        }
+        let valid_guess_cnt = 0;
+        return;
+    }
+
+    /** Check if char exists in current options and if then erase */
+    method boolean foundInOptions(char ch) {
+        var int i;
+        var boolean flag;
+        let i = 0;
+        let flag = false;
+        while(i < 26) { // remove this option as you've tried already
+            if(options[i] = ch) {
+               let options[i] = 0;
+               let flag = true; // found at least
+            }
+            let i = i + 1;
+        }
+        return flag;
+    }
+
+    /** show current word , reads and returns user choice */
+    method char readGuess() {
+        var int i;
+        var char ch;
+        do Output.moveCursor(1, 1);
+        do Output.printChar(91);
+        do Output.printString(guess);
+        do Output.printChar(93);
+        do Output.println();
+        //do Output.printString(word);    // prints the correct word
+        do Output.println();
+        do Output.println();
+        do Output.printString(" Trial left: ");
+        do Output.printInt(trial_left);
+        do Output.println();
+        do Output.println();
+        do Output.printString(" Choose a letter as your guess: ");
+        do Output.println();
+        do Output.println();
+        do Output.printString(" ");
+        let i = 0;
+        while(i < 26) { // print all options
+            if(~(options[i] = 0)) {
+                do Output.printChar(options[i]);
+                do Output.printString(" ");
+            }
+            if(i = 12) {
+                do Output.println();
+                do Output.println();
+                do Output.printString(" ");
+            }
+            let i = i + 1;
+        }
+        do Output.println();
+        let ch = 3; // set ch to arbitrary value
+        while(~foundInOptions(ch)) {    // read a proper character from given options only and 
+            do Output.moveCursor(6, 33);
+            let ch = Keyboard.readChar();   // clear from options
+        }
+        do Screen.clearScreen();
+        return ch;
+    }
+
+    /** updates valid guess count and puzzle string */
+    method boolean updateGuess(char ch) {
+        var int i;
+        var boolean flag;
+        let i = 0;
+        let flag = false;
+        while(i < size) {
+            if((word.charAt(i) = ch) & (~(guess.charAt(i) = ch))) {
+                do guess.setCharAt(i, ch);     // update character
+                let valid_guess_cnt = valid_guess_cnt + 1;  // update valid guess total
+                let flag = true;
+            }
+            let i = i + 1;
+        }
+        return flag;
+    }
+
+    /** Runs the game*/
+    method void run() {
+        var int seed;
+        let seed = getSeed();   // get a random word index
+        let word = country.getRandomWord(level, seed); // get a random word for defined level
+        let size = word.length();   // lenght of current word
+        do initGuess();              // constructs a puzzle string
+        // now screen is clear
+        while((trial_left > 0) & (valid_guess_cnt < size)) {
+            do hangman.hang();  // draw hangman
+            // read a guess and conpensate
+            if(~updateGuess(readGuess())) {
+                let trial_left = trial_left - 1;
+                // hang the hangman more
+                do hangman.increment();
+            } 
+            do hangman.hang();
+        }
+        
+        // show win or lose status
+        if(trial_left = 0) {
+            do Screen.clearScreen();
+            do hangman.hang();
+            do Output.moveCursor(2, 1);
+            do Output.printString("The correct word is: ");
+            do Output.printString(word);
+            do Output.moveCursor(4, 1);
+            do Output.printString("Better try next....");
+        } else {
+            do Screen.clearScreen();
+            //do hangman.hang();
+            do Output.moveCursor(2, 1);
+            do Output.printString("Congrats!!! You've the correct guess");
+            do Output.println();
+            do Output.println();
+            do Output.printString(" You may wish to visit ");
+            do Output.printString(word);
+        }
+        do Sys.wait(2000);
+        return;
+    }
+}

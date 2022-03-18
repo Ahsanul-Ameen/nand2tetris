@@ -1,0 +1,689 @@
+
+var Nabble = new Object();
+Nabble.main = 1;
+
+Nabble.getParent = function() {
+	if (typeof(customParent) != 'undefined')
+		return customParent();
+	try {
+		if (parent.Nabble.main == 1)
+			return parent.parent;
+	} catch(err) {}
+	return parent;
+};
+
+if (!Array.prototype.indexOf) {
+	Array.prototype.indexOf = function(e, start) {
+		start = start || 0;
+		if (start < 0)
+			start += this.length;
+		for (var i=start; i<this.length; i++)
+			if (this[i] == e)
+				return i;
+		return -1;
+	};
+}
+
+Nabble.get = function(id) {
+	return document.getElementById(id);
+};
+
+Nabble.loadScript = function(url) {
+	var e = document.createElement("script");
+	e.src = url;
+	e.type="text/javascript";
+	document.getElementsByTagName("head")[0].appendChild(e);
+};
+
+Nabble.escapeHTML = function(str) {
+	var div = document.createElement('div');
+	var text = document.createTextNode(str);
+	div.appendChild(text);
+	return div.innerHTML;
+};
+
+Nabble.escape = function(value) {
+	if (typeof value == 'string') {
+		var hasSpace = value.indexOf(' ') >= 0;
+		var hasQuote = value.indexOf('"') >= 0;
+
+		value = value.replace(/\;/g, '%3B');
+		value = value.replace(/"/g, '\\"');
+
+		if (hasSpace || hasQuote)
+			value = '"' + value + '"';
+	}
+	return value;
+};
+
+Nabble.unescape = function(value) {
+	if (value.charAt(0) == '"' && value.charAt(value.length-1) == '"')
+		value = value.substring(1, value.length-1);
+
+	value = value.replace(/\\"/g, '"');
+	value = value.replace(/%3B/g, ';');
+	return value;
+};
+
+Nabble.getCookie = function(name) {
+	var dc = document.cookie;
+	var prefix = name + "=";
+	var begin = dc.indexOf("; " + prefix);
+	if (begin == -1) {
+		begin = dc.indexOf(prefix);
+		if (begin != 0) return null;
+	} else
+		begin += 2;
+	var end = document.cookie.indexOf(";", begin);
+	if (end == -1)
+		end = dc.length;
+	return Nabble.unescape(dc.substring(begin + prefix.length, end));
+};
+
+Nabble.setCookie = function(name, value) {
+	var curCookie = name + "=" + Nabble.escape(value) + ";path=/";
+	document.cookie = curCookie;
+};
+
+Nabble.setPersistentCookie = function(name, value) {
+	var expires = new Date();
+	expires.setFullYear(expires.getFullYear()+10);
+	var curCookie = name + "=" + Nabble.escape(value) + "; expires=" + expires.toGMTString() + "; path=/";
+	document.cookie = curCookie;
+};
+
+Nabble.deleteCookie = function(name) {
+	if (this.getCookie(name)) {
+		document.cookie = name + "=" +
+			"; path=/"  +
+			"; expires=Thu, 01-Jan-1970 00:00:01 GMT";
+	}
+};
+
+Nabble.vars = ["appnotice"];
+Nabble.pvars = ["tview"];  /* persistent */
+
+(function(){
+	for(var i=0;i<Nabble.vars.length;i++) {
+		var v = Nabble.vars[i];
+		Nabble[v] = Nabble.getCookie(v);
+	}
+	for(var i=0;i<Nabble.pvars.length;i++) {
+		var v = Nabble.pvars[i];
+		Nabble[v] = Nabble.getCookie(v);
+	}
+})();
+
+Nabble.handleVars = function() {
+	for( var i=0; i<Nabble.vars.length; i++ ) {
+		var v = Nabble.vars[i];
+		if( Nabble[v] != Nabble.getCookie(v) ) {
+			Nabble.setVar(v,Nabble[v]);
+		}
+	}
+	for( var i=0; i<Nabble.pvars.length; i++ ) {
+		var v = Nabble.pvars[i];
+		if( Nabble[v] != Nabble.getCookie(v) ) {
+			Nabble.setVar(v,this[v]);
+		}
+	}
+};
+
+Nabble.contains = function(a,v) {
+	for( var i=0; i<a.length; i++ ) {
+		if( a[i]==v )
+			return true;
+	}
+	return false;
+};
+
+Nabble.setVar = function(v,val) {
+	Nabble[v] = val;
+	try {
+		Nabble.getParent().Nabble[v] = val;
+	} catch(err) {}
+	if(val) {
+		if( this.contains(this.vars,v) ) {
+			this.setCookie(v,val);
+		} else if( this.contains(this.pvars,v) ) {
+			this.setPersistentCookie(v,val);
+		} else {
+			throw new Error("var not found: "+v);
+		}
+	} else {
+		this.deleteCookie(v);
+	}
+};
+
+Nabble.toggle = function(id, callback) {
+	$('#'+id).slideToggle('slow', function(){
+		if (callback) callback();
+		Nabble.resizeFrames();
+	});
+};
+
+Nabble.trim = function(s) {
+	return s.replace(/^\s+|\s+$/g,'');
+};
+
+/* overridden in javascript_library macro */
+//		Nabble.getClientID = function(){};
+
+var userHeaderListeners = [];
+var userHeaderReady = false;
+Nabble.addUserHeaderListener = function(listener){
+	if (!userHeaderReady) userHeaderListeners.push(listener);
+	else listener();
+};
+
+Nabble.userHeader = function() {
+	$(document).ready(function(){
+		var s = '';
+		if (Nabble.siteHeader)
+			s += Nabble.siteHeader();
+		$("#nabble-user-header").html(s);
+		for(var i=0;i<userHeaderListeners.length;i++)
+			userHeaderListeners[i]();
+		userHeaderReady = true;
+	});
+};
+
+function notice(s, wait, fade) {
+	var $n = $('#notice');
+	$n.html(s);
+	var hw = $n.width()/2;
+	$n.css('margin-left', -hw + 'px');
+	$n.show();
+	if (wait && fade)
+		setTimeout(function() {
+			$n.fadeOut(fade);
+		}, wait);
+};
+
+function singleSubmit(f) {
+	if (f.done)
+		return false;
+	f.done = true;
+	return true;
+};
+
+Nabble.analytics = function() {
+	if (navigator.cookieEnabled && !Nabble.getCookie("v")) {
+		var visitCounter = "/util/VisitCounter.jtp?referrer=" + encodeURIComponent(document.referrer);
+		Nabble.loadScript(visitCounter);
+	}
+	var expires = new Date();
+	expires.setTime(expires.getTime()+30*60*1000);
+	document.cookie = "v=x; expires=" + expires.toGMTString() + "; path=/";
+};
+
+	var host = "nand2tetris-questions-and-answers-forum.32033.n3.nabble.com";
+	
+	Nabble.embeddingUrl = null;
+	Nabble.embedForumID = 0;
+	Nabble.isEmbedded = false;
+
+	try {
+		var info = Nabble.getParent().nabbleinfo.location.search.substring(6);
+		info = decodeURIComponent(info);
+		var pos = info.indexOf('&');
+		Nabble.embedForumID = info.substring(0, pos);
+		var hash = Nabble.getParent().nabbleinfo.location.hash.substring(1).split('|');
+		Nabble.embeddingUrl = hash[0];
+		Nabble.isEmbedded = true;
+	} catch(err) {}
+
+	Nabble.getClientID = function(c) {
+		return '';
+	};
+
+	Nabble.embeddedTarget = function(defaultTarget) {
+		return Nabble.isEmbedded? ' target="nabbleiframe" ' : ' target="' + defaultTarget + '" ';
+	};
+
+	Nabble.height = function() {
+		if( typeof( window.innerHeight ) == 'number' ) {
+			return window.innerHeight;
+		} else if( document.documentElement && document.documentElement.clientHeight ) {
+			return document.documentElement.clientHeight;
+		} else if( document.body && document.body.clientHeight ) {
+			return document.body.clientHeight;
+		}
+	};
+
+	Nabble.knowsHeight = navigator.userAgent.toLowerCase().indexOf('safari') == -1;
+
+	Nabble.canScroll = function() {
+		try{
+			return Nabble.getParent().nabbleinfo.canScroll();
+		} catch(er) {}
+		return true;
+	};
+
+	Nabble.hash = function() {
+		var _hash = location.hash;
+		if (Nabble.getParent().nabbleinfo && Nabble.getParent().nabbleinfo.hash) {
+			if (!_hash)
+				_hash = '#' + Nabble.getParent().nabbleinfo.hash;
+			Nabble.getParent().nabbleinfo.hash = null;
+		}
+		return _hash;
+	};
+
+	Nabble.setTop = function(url) {
+		if (Nabble.isEmbedded) Nabble.getParent().nabbleiframe.location=url;
+		else top.location=url;
+	};
+
+	Nabble.getMyHeight = function() {
+		try {
+			return $(document.body).outerHeight();
+		} catch(err) {}
+		return 500;
+	};
+
+	Nabble.evalInTop = function(key, js) {
+		var p = '';
+		for (var i = 0; i < js.length; i++) {
+			p += 'v=' + key[i] + '|' + encodeURIComponent(js[i]) + '&';
+		}
+		if (p.length > 0) {
+			var url = "/util/SessionService.jtp?action=set&" + p + "cid=" + Nabble.getParent().nabbleinfo.clientID + "&_=" + new Date().getTime();
+			$.get(url, function() {
+				Nabble.getParent().nabbleresize.location = "/util/Empty.jtp";
+			});
+		}
+	};
+
+	Nabble.quote = function(s) {
+		return '"' + s.replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,'\\"') + '"';
+	};
+
+	Nabble.heightLimit = 32767;
+	Nabble.resizeCount = 0;
+
+	Nabble.isValidHeight = function(height) {
+		var isBadBrowser = $.browser.mozilla || $.browser.opera;
+		var exceeded = height > Nabble.heightLimit && isBadBrowser;
+		return !exceeded;
+	};
+
+	Nabble.resizeFrames = function(h, scroll) {
+		if (Nabble.getParent().nabbleresize) {
+			var height = h && typeof h == 'number'? h : Math.max(Nabble.getMyHeight() + 25, 600);
+			var validHeight = Nabble.isValidHeight(height);
+			height = validHeight? height : Nabble.heightLimit;
+			var js = [], key = [];
+			if (scroll) {
+				js.push("Nabble.scroll(" + scroll + ");");
+				key.push("scrolljs");
+			}
+			if (height != $(window).height() || Nabble.resizeCount++ == 0) {
+				js.push("Nabble.resizeFrames(" + height + "," + Nabble.quote(document.title) + "," + validHeight + ");");
+				key.push("resizejs");
+			}
+			if (js.length > 0)
+				Nabble.evalInTop(key, js);
+		}
+	};
+
+	Nabble.restartEmbedding = function(nodeId, baseUrl) {
+		if (Nabble.getParent().nabbleresize) {
+			var js = ['Nabble.restart(' + nodeId + ',"' + baseUrl + '");'];
+			Nabble.evalInTop(['others'], js);
+		}
+	};
+
+	$(document).ready(function(){
+		if (Nabble.isEmbedded) {
+			Nabble.resizeFrames('', 1);
+			$(window).resize(Nabble.resizeFrames);
+			$(window).load(function() {
+			   Nabble.resizeFrames();
+			});
+		}
+	});
+	Nabble.online = function(id) {
+		$('img.online'+id).show();
+	};
+
+	Nabble.openMsg = function(id) {
+		return Nabble.getCookie(id) == null;
+	};
+
+	Nabble.toggleMsg = function(id, hide) {
+		if (hide)
+			Nabble.setPersistentCookie(id, 'closed');
+		else
+			Nabble.deleteCookie(id);
+	};
+	Nabble.months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+	
+	Nabble.now = new Date();
+	Nabble.fmt2 = function(i) { return i <= 9? '0'+i:i; };
+
+	Nabble.isToday = function(date) {
+		return date.toDateString() == this.now.toDateString();
+	};
+
+	Nabble.isThisYear = function(date) {
+		return date.getYear() == this.now.getYear();
+	};
+
+	Nabble.dateFormatters = {
+		us: new (function(){
+			this.formatTime = function(date) {
+				var hours = date.getHours();
+				if (hours < 12) {
+					var xm = "am";
+					if (hours==0)
+						hours = 12;
+				} else {
+					var xm = "pm";
+					if (hours > 12)
+						hours -= 12;
+				}
+				return hours + ":" + Nabble.fmt2(date.getMinutes()) + xm;
+			};
+			this.formatDateOnly = function(date) {
+				return Nabble.months[date.getMonth()] + " " + Nabble.fmt2(date.getDate()) + ", " + date.getFullYear();
+			};
+			this.formatDateLong = function(date) {
+				return this.formatDateOnly(date) + "; " + this.formatTime(date);
+			};
+			this.formatDateShort = function(date) {
+				if( Nabble.isToday(date) )
+					return this.formatTime(date);
+				if( Nabble.isThisYear(date) )
+					return Nabble.months[date.getMonth()] + " " + Nabble.fmt2(date.getDate());
+				return this.formatDateOnly(date);
+			};
+		})()
+		,
+		euro: new (function(){
+			this.formatTime = function(date) {
+				return Nabble.fmt2(date.getHours()) + ":" + Nabble.fmt2(date.getMinutes());
+			};
+			this.formatDateOnly = function(date) {
+				return Nabble.fmt2(date.getDate()) + "." + Nabble.months[date.getMonth()] + "." + date.getFullYear();
+			};
+			this.formatDateLong = function(date) {
+				return this.formatTime(date) + ", " + this.formatDateOnly(date);
+			};
+			this.formatDateShort = function(date) {
+				if( Nabble.isToday(date) )
+					return this.formatTime(date);
+				if( Nabble.isThisYear(date) )
+					return Nabble.fmt2(date.getDate()) + "." + Nabble.months[date.getMonth()];
+				return this.formatDateOnly(date);
+			};
+		})()
+		,
+		tech: new (function(){
+			this.formatTime = function(date) {
+				return Nabble.fmt2(date.getHours()) + ":" + Nabble.fmt2(date.getMinutes());
+			};
+			this.formatDateOnly = function(date) {
+				return "" + date.getFullYear() + "-" + Nabble.fmt2(date.getMonth()+1) + "-" + Nabble.fmt2(date.getDate())
+			};
+			this.formatDateLong = function(date) {
+				return this.formatDateOnly(date) + " " + this.formatTime(date);
+			};
+			this.formatDateShort = function(date) {
+				if( Nabble.isToday(date) )
+					return this.formatTime(date);
+				if( Nabble.isThisYear(date) )
+					return Nabble.fmt2(date.getMonth()+1) + "-" + Nabble.fmt2(date.getDate());
+				return this.formatDateOnly(date);
+			};
+		})()
+	};
+
+	Nabble.getDateFmt = function() {
+		var dateFmt = Nabble.getCookie("date_fmt");
+		return dateFmt==null ? "us" : dateFmt;
+	};
+
+	Nabble.formatDateOnly = function(date) {
+		return Nabble.dateFormatters[Nabble.getDateFmt()].formatDateOnly(date);
+	};
+
+	Nabble.formatTimeOnly = function(date) {
+		return Nabble.dateFormatters[Nabble.getDateFmt()].formatTime(date);
+	};
+
+	Nabble.formatDateLong = function(date) {
+		return Nabble.dateFormatters[Nabble.getDateFmt()].formatDateLong(date);
+	};
+
+	Nabble.formatDateShort = function(date) {
+		var fmt = Nabble.dateFormatters[Nabble.getDateFmt()];
+		return '<span title="' + fmt.formatDateLong(date) + '">'
+			+ fmt.formatDateShort(date) + '</span>';
+	};
+	var t_login = "Login";
+	var t_register = "Register";
+	var t_logout = "Log out";
+	var t_my_posts = "My posts";
+	var t_account_settings = "Account settings";
+	var t_show_nabble_notice = "Show Nabble notice";
+	var t_permalink = "Permalink";
+	var t_refresh = "Refresh";
+	var login_path = "/template/NamlServlet.jtp?macro=login_page";
+	var logout_path = "/template/NamlServlet.jtp?macro=logout_page";
+	var register_path = "/template/NamlServlet.jtp?macro=start_registration_page";
+	var user_profile_path = "/template/NamlServlet.jtp?macro=user_profile";
+	
+	Nabble.userId = Nabble.getCookie("userId");
+	var encodedUsername = Nabble.getCookie("username");
+	if (encodedUsername) {
+		Nabble.username = decodeURIComponent(encodedUsername)
+			.replace(new RegExp('\\+','g'),' ');
+	}
+
+	if (!Nabble.userId) {
+		Nabble.anonymousId = Nabble.getCookie("anonymousId");
+		var encodedName = Nabble.getCookie("anonymousName");
+		if (encodedName) {
+			Nabble.anonymousName = decodeURIComponent(encodedName)
+				.replace(new RegExp('\\+','g'),' ')
+				.replace(new RegExp('<','g'),'&lt;')
+				.replace(new RegExp('>','g'),'&gt;');
+		}
+	}
+
+	Nabble.getPermalink = function() {
+		return Nabble.getParent().nabbleiframe.location.href;
+	};
+
+	Nabble.permalinkLabel = function() {
+		if (!Nabble.isEmbedded)
+			return '';
+		var p = "<script>function openPermalink() { prompt('Copy this:', Nabble.getPermalink()); };</script>";
+		p += "<a href='javascript: void openPermalink();'>"+t_permalink+"</a>&nbsp;&nbsp;";
+		return p;
+	};
+
+	Nabble.refreshLabel = function() {
+		if (Nabble.isEmbedded)
+			return "<a href='javascript: location.reload(true);'>"+t_refresh+"</a>&nbsp;&nbsp;";
+		return '';
+	};
+
+	Nabble.siteHeader = function() {
+		var s = Nabble.refreshLabel();
+		s += Nabble.permalinkLabel();
+		if (!Nabble.userId) {
+			var nextUrl = typeof loginNextUrl == 'undefined'? window.location.href : loginNextUrl;
+			s += '<a href="'+login_path+'&nextUrl='+encodeURIComponent(nextUrl)+'">'+t_login+'</a>';
+			s += '&nbsp;&nbsp;';
+			s += '<a href="'+register_path+'&nextUrl='+encodeURIComponent(nextUrl)+'">'+t_register+'</a>';
+			if (Nabble.anonymousId && Nabble.anonymousName) {
+				s += '&nbsp;&nbsp;';
+				s += '<a href="/template/NamlServlet.jtp?macro=user_nodes&user=' + Nabble.anonymousId + '~' + Nabble.anonymousName + '">';
+				s += Nabble.anonymousName;
+				s += '</a>';
+			}
+		} else
+			s += '<span id="user-dd"></span>';
+		return s;
+	};
+
+	Nabble.userDropdown = function() {
+		var $t = $('#user-dd');
+		if ($t.size() == 0)
+			return;
+		$t.empty();
+		var dropdown = new NabbleDropdown('usrdd', Nabble.escapeHTML(Nabble.username));
+		dropdown.add('myPosts','<a href="/template/NamlServlet.jtp?macro=user_nodes&user='+Nabble.userId + '">'+t_my_posts+'</a>');
+		dropdown.add('personalSettings','<a href="'+user_profile_path+'">'+t_account_settings+'</a>');
+		dropdown.add('adminNotice','<a href="javascript: void Nabble.showAdminNotice()">'+t_show_nabble_notice+'</a>','display:none');
+		dropdown.add('logout','<a href="javascript: void Nabble.logout()">'+t_logout+'</a>');
+		$t.html(dropdown.getHtml());
+		dropdownInit('usrdd');
+	};
+
+	Nabble.addUserHeaderListener(function() {
+		Nabble.userDropdown();
+	});
+
+	Nabble.showAdminNotice = function() {
+		Nabble.deleteCookie('admin-notice');
+		window.location.reload();
+	};
+
+	Nabble.logout = function() {
+		window.location = '/template/NamlServlet.jtp?macro=logout_page';
+	};
+	var t_confirm_delete_post = "Do you really want to delete this post?";
+	var t_confirm_delete_post_recursively = "Do you really want to permanently delete this message and all replies?";
+	var t_caution_cannot_revert = "CAUTION: this action cannot be reverted.";
+	
+	Nabble.deletePost = function(postId) {
+		if (!confirm(t_confirm_delete_post))
+			return;
+		var newLocation = "/template/NamlServlet.jtp?macro=delete_post&node="+postId;
+		Nabble.setTop(newLocation);
+	};
+
+	Nabble.deleteFromSite = function(nodeId) {
+		if( !confirm(t_confirm_delete_post_recursively+"\n\n"+t_caution_cannot_revert) )
+			return;
+		var newLocation = "/template/NamlServlet.jtp?macro=delete_from_site&node="+nodeId;
+		Nabble.setTop(newLocation);
+	};
+	Nabble.messageTextWidth = function() {
+		var maxWidth = Nabble.getCookie("max_width");
+		if( maxWidth==null )
+			return;
+		document.write("<style type='text/css'>.nabble .message-text {max-width: "+maxWidth+";}</style>");
+	};
+
+	Nabble.setFontSize = function() {
+		var fontSize = Nabble.getCookie("font_size");
+		if (fontSize)
+			document.write("<style type='text/css'>body, table .nabble {font-size: "+fontSize+";}</style>");
+	};
+
+	Nabble.hideQuotes = function(context) {
+		$('div.shrinkable-quote,blockquote',context).each(function() {
+			var $this = $(this);
+			if ($this.outerHeight() > 300) {
+				$this.after("<div class='shrink-quote'><span></span> [<a href='javascript:void(0)'></a>]</div>");
+			}
+		});
+		$('div.shrink-quote a', context)
+			.click(function(){
+				var $this = $(this);
+				var v = parseInt($this.attr('collapsed') || 1) % 2;
+				if (v == 0) {
+					$this.prev().html( "&#171;&nbsp;" );
+					$this.html( "hide part of quote" );
+					var $text = $this.parent().prev();
+					$text.css( 'height', 'auto' );
+					$text.css( 'overflowY', 'auto' );
+				} else {
+					$this.prev().html( "..." );
+					$this.html( "show rest of quote" );
+					var $text = $this.parent().prev();
+					$text.css('height', '300px');
+					$text.css('overflowY', 'hidden' );
+				}
+				$this.attr('collapsed', v+1);
+				Nabble.resizeFrames();
+			})
+			.click()
+		;
+	};
+	Nabble.highlightSearchTerms = function(searchterms, elem) {
+		if (elem.childNodes && elem.childNodes.length > 0) {
+			for (var i=0; i<elem.childNodes.length; i++) {
+				this.highlightSearchTerms(searchterms, elem.childNodes[i]);
+			}
+		} else if (elem.nodeType) {
+			if (elem.nodeType == document.TEXT_NODE || elem.nodeType == 3) {
+				var txt = elem.nodeValue;
+				var rgx = new RegExp("\\b("+searchterms+")\\w*\\b", "gi");
+				var result;
+				var start = 0;
+				var newFragment = document.createElement("span");
+				while ((result = rgx.exec(txt)) != null) {
+					var end = result.index;
+					var textNode = document.createTextNode(txt.slice(start, end));
+					newFragment.appendChild(textNode);
+					var hlNode = document.createElement("span");
+					hlNode.className = "bold highlight search-highlight";
+					hlNode.appendChild(document.createTextNode(result[0]));
+					newFragment.appendChild(hlNode);
+					start = end + result[0].length;
+					Nabble.hasHighlightedTerms = true;
+				}
+				newFragment.appendChild(document.createTextNode(txt.slice(start)));
+				elem.parentNode.replaceChild(newFragment, elem);
+			}
+		}
+	};
+
+	Nabble.getSearchTerms = function() {
+		var searchterms = this.getCookie("searchterms");
+		if (document.referrer) {
+			var result = Nabble.getSearchTerms2(document.referrer);
+			if (result!=null) {
+				var query = decodeURIComponent(result);
+				searchterms = query.replace(/\W+/g,"|").replace(/^\|/,"").replace(/\|$/,"");
+				this.setCookie("searchterms", searchterms);
+				Nabble.gquery = query.replace(/\+/g," ");
+			}
+		}
+		return searchterms;
+	};
+
+	/* Logic from _uOrg() in urchin.js */
+	Nabble.getSearchTerms2 = function(referrer) {
+		if (typeof(_uOsr)=="undefined" || typeof(_uOkw)=="undefined")
+			return null;
+		var searchEngines = _uOsr;  /* from urchin */
+		var searchQueries = _uOkw;  /* from urchin */
+		var i;
+		if (referrer==null || (i=referrer.indexOf("://")) < 0)
+			return null;
+		var h = referrer.substring(i+3);
+		var p = h.indexOf("/");
+		if (p > -1)
+			h = h.substring(0,p);
+		for (var j=0; j<searchEngines.length; j++) {
+			var engine = searchEngines[j];
+			var query = searchQueries[j];
+			if (h.toLowerCase().indexOf(engine.toLowerCase()) > -1) {
+				if ((i=referrer.indexOf("?"+query+"=")) > -1 || (i=referrer.indexOf("&"+query+"=")) > -1) {
+					var k = referrer.substring(i+query.length+2,referrer.length);
+					if ((i=k.indexOf("&")) > -1)
+						k = k.substring(0,i);
+					return k;
+				}
+			}
+		}
+		return null;
+	};
+	
+	Nabble.vote = function(nodeId,maxChoices) { var vote_count = $('#poll_form'+nodeId+' input:checked').length; if (vote_count > maxChoices) { alert('Please select no more than '+maxChoices+' options.'); return false; } else if (vote_count == 0) { alert('Please select at least one option.'); return false; } var params = $('#poll_form'+nodeId).serialize(); var call = '/template/NamlServlet.jtp?macro=vote&'+params; var call2 = '/template/NamlServlet.jtp?macro=poll_js&poll_node_id='+nodeId; $.getScript(call, function() { notice('Your vote has been submitted.', 5000, 2000); $.getScript(call2); }); return false; };

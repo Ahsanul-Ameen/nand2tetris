@@ -1,0 +1,87 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Memory.jack
+
+/**
+ * This library provides two services: direct access to the computer's main
+ * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM
+ * consists of 32,768 words, each holding a 16-bit binary number.
+ */ 
+class Memory {
+	static Array ram;
+	static int heapBase, freeList;
+
+    /** Initializes the class. */
+    function void init() {
+    	let ram = 0;            // init RAM array
+    	let heapBase = 2048;    // heapBase
+    	let freeList = heapBase;    
+        let ram[freeList] = 0;        // next
+        let ram[freeList + 1] = 14334;    // length: (16383 - 2048 + 1) - 2  
+        return;
+    }
+
+    /** Returns the RAM value at the given address. */
+    function int peek(int address) { return ram[address]; }
+
+    /** Sets the RAM value at the given address to the given value. */
+    function void poke(int address, int value) {
+    	let ram[address] = value;
+    	return;
+    }
+
+    /** Finds an available RAM block of the given size and returns
+     *  a reference to its base address. */
+    function int alloc(int size) {
+        var int temp, res, block_size;
+
+        let block_size = 15000;
+        let res = freeList;
+        let temp = freeList;
+        
+        while(~(temp = 0)) {
+            if((ram[temp + 1] > (size - 1)) & (ram[temp + 1] < block_size)) {
+                // it is a valid candidate
+                let block_size = ram[temp + 1];
+                let res = temp;
+            }
+            let temp = ram[temp];
+        }
+
+        let temp = res + ram[res + 1] - size; // new block 
+        let ram[res + 1] = ram[res + 1] - size - 2; // size shrinkes by: size + 2
+        
+        let ram[temp] = 0;
+        let ram[temp + 1] = size;
+        return temp + 2;
+    }
+
+    /** De-allocates the given object (cast as an array) by making
+     *  it available for future allocations. */
+    function void deAlloc(Array o) {
+        var int segment, prev_seg, next_seg;
+        let segment = o - 2;
+        // with diFragmantation
+        let prev_seg = freeList;
+        let next_seg = ram[prev_seg];
+        while(~(next_seg = 0) & (next_seg < segment)) { 
+            let prev_seg = next_seg;
+            let next_seg = ram[prev_seg];
+        }
+        let ram[prev_seg] = segment;
+        let ram[segment] = next_seg;
+
+        // Combine segment with next_seg if contiguous.
+        if((segment + 2 + ram[segment + 1]) = next_seg) {
+            let ram[segment + 1] = ram[segment + 1] + 2 + ram[next_seg + 1];
+            let ram[segment] = ram[next_seg];
+        }
+        // Combine segment with prev_seg if contiguous.
+        if((prev_seg + 2 + ram[prev_seg + 1]) = segment) {
+            let ram[prev_seg + 1] = ram[prev_seg + 1] + 2 + ram[segment + 1];
+            let ram[prev_seg] = ram[segment];
+        }
+        return;
+    }    
+}
