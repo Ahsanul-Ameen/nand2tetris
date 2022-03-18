@@ -1,0 +1,13 @@
+class Main {
+	static int x;
+	
+	function void main() {
+	  var Purano old;
+	  let x = 10;
+	  let old = Purano.new(4, 5);
+	  let x = old.print(x);
+	  do old.dispose();
+	  return;
+	}
+
+}

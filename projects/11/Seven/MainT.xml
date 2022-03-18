@@ -1,0 +1,29 @@
+<tokens>
+<identifier> class </identifier>
+<identifier> Main </identifier>
+<symbol> { </symbol>
+<identifier> function </identifier>
+<keyword> void </keyword>
+<identifier> main </identifier>
+<symbol> ( </symbol>
+<symbol> ) </symbol>
+<symbol> { </symbol>
+<identifier> do </identifier>
+<identifier> Output </identifier>
+<symbol> . </symbol>
+<identifier> printInt </identifier>
+<symbol> ( </symbol>
+<integerConstant> 1 </integerConstant>
+<symbol> + </symbol>
+<symbol> ( </symbol>
+<integerConstant> 2 </integerConstant>
+<symbol> * </symbol>
+<integerConstant> 3 </integerConstant>
+<symbol> ) </symbol>
+<symbol> ) </symbol>
+<symbol> ; </symbol>
+<keyword> return </keyword>
+<symbol> ; </symbol>
+<symbol> } </symbol>
+<symbol> } </symbol>
+</tokens>

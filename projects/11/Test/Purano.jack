@@ -1,0 +1,19 @@
+class Purano {
+	field int a, b;
+	constructor Purano new(int aa, int bb) {
+		let a = aa;
+		let b = bb;
+		do print(6666);
+		return this;
+	}
+	
+	method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+	method int print(int x) {
+		do Output.printInt(x);
+		return 2 * x ;
+	}
+}

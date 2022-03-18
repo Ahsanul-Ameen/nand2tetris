@@ -1,0 +1,47 @@
+function Purano.new 0
+// constructing object
+push constant 2
+call Memory.alloc 1
+pop pointer 0
+// let a = aa;
+push argument 0
+pop this 0
+// let b = bb;
+push argument 1
+pop this 1
+//	do print(6666);
+push pointer 0
+push constant 6666
+call Purano.print 2
+pop temp 0
+// return this
+push pointer 0
+return
+
+
+function Purano.dispose 0
+// update this 
+push argument 0
+pop pointer 0
+// do Memory.deAlloc(this);
+push pointer 0
+call Memory.deAlloc 1
+pop temp 0
+// return;
+push constant 0
+return
+
+
+function Purano.print 0
+// update this
+push argument 0
+pop pointer 0
+// do Output.printInt(x);
+push argument 1
+call Output.printInt 1
+pop temp 0
+// return 2 * x;
+push constant 2
+push argument 1
+call Math.multiply 2
+return

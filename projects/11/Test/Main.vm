@@ -1,0 +1,21 @@
+function Main.main 1
+// let x = 10;
+push constant 10
+pop static 0
+// let old = Purano.new(4, 5);
+push constant 4
+push constant 5
+call Purano.new 2
+pop local 0
+// let x = old.print(x);
+push local 0
+push static 0
+call Purano.print 2
+pop static 0
+// do old.dispose();
+push local 0
+call Purano.dispose 1
+pop temp 0
+// return;
+push constant 0
+return
