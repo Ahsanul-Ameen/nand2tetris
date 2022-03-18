@@ -1,0 +1,112 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/05/CPU.hdl
+
+/**
+ * The Hack CPU (Central Processing unit), consisting of an ALU,
+ * two registers named A and D, and a program counter named PC.
+ * The CPU is designed to fetch and execute instructions written in 
+ * the Hack machine language. In particular, functions as follows:
+ * Executes the inputted instruction according to the Hack machine 
+ * language specification. The D and A in the language specification
+ * refer to CPU-resident registers, while M refers to the external
+ * memory location addressed by A, i.e. to Memory[A]. The inM input 
+ * holds the value of this location. If the current instruction needs 
+ * to write a value to M, the value is placed in outM, the address 
+ * of the target location is placed in the addressM output, and the 
+ * writeM control bit is asserted. (When writeM==0, any value may 
+ * appear in outM). The outM and writeM outputs are combinational: 
+ * they are affected instantaneously by the execution of the current 
+ * instruction. The addressM and pc outputs are clocked: although they 
+ * are affected by the execution of the current instruction, they commit 
+ * to their new values only in the next time step. If reset==1 then the 
+ * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather 
+ * than to the address resulting from executing the current instruction. 
+ */
+
+CHIP CPU {
+
+    IN  inM[16],         // M value input  (M = contents of RAM[A])
+        instruction[16], // Instruction for execution
+        reset;           // Signals whether to re-start the current
+                         // program (reset==1) or continue executing
+                         // the current program (reset==0).
+
+    OUT outM[16],        // M value output
+        writeM,          // Write to M? 
+        addressM[15],    // Address in data memory (of M)
+        pc[15];          // address of next instruction
+
+    PARTS:
+    // Put your code here:
+    Mux16(a=instruction ,b=aluout ,sel=instruction[15] ,out=arin ); /* Selects between two 16-bit inputs */
+    Not(in=instruction[15] ,out=arloada ); /* 16-bit Not */
+    And(a=instruction[15] ,b=instruction[5] ,out=arloadc ); /* 16-bit Or */
+    Or(a=arloada ,b=arloadc ,out=arload ); /* 16-bit Or */
+    ARegister(in=arin ,load=arload ,out=arout, out[0..14]=addressM ); /* Address register (built-in) */
+    
+    And(a=instruction[4] ,b=instruction[15] ,out=drcontrol ); /* And gate */
+    DRegister(in=aluout ,load=drcontrol ,out=aluin1 ); /* Data register (built-in) */
+    
+    And(a=instruction[3] ,b=instruction[15] ,out=writeM ); /* And gate */
+    
+    Mux16(a=arout ,b=inM ,sel=instruction[12] ,out=aluin2 ); /* Selects between two 16-bit inputs */
+    ALU(x=aluin1 ,y=aluin2 ,zx=instruction[11] ,nx=instruction[10] ,zy=instruction[9] ,ny=instruction[8] ,f=instruction[7] ,no=instruction[6] ,out=aluout ,out=outM ,zr=zr ,ng=ng ); /* Hack ALU */
+    
+    
+    And(a=instruction[2] ,b=true ,out=j1 ); /* And gate */
+    And(a=instruction[1] ,b=true ,out=j2 ); /* And gate */
+    And(a=instruction[0] ,b=true ,out=j3 ); /* And gate */
+
+    Or(a=zr ,b=ng ,out=or1 ); /* 16-bit Or */
+    Not(in=or1 ,out=not1 ); /* 16-bit Not */
+    And(a=j3 ,b=not1 ,out=and1 ); /* And gate */
+
+    Nand(a=j2 ,b=zr ,out=nand2 ); /* Nand gate (built-in) */
+    Or(a=nand2 ,b=ng ,out=or2 ); /* 16-bit Or */
+    Not(in=or2 ,out=not2 ); /* 16-bit Not */
+
+    Nand(a=j1 ,b=ng ,out=nand3 ); /* Nand gate (built-in) */
+    Or(a=nand3 ,b=zr ,out=or3 ); /* 16-bit Or */
+    Not(in=or3 ,out=not3 ); /* 16-bit Not */
+
+    And(a=j1 ,b=j2 ,out=and41 ); /* And gate */
+    And(a=and41 ,b=j3 ,out=and4 ); /* And gate */
+
+    Or8Way(in[0]=and1 ,in[1]=not2 ,in[2]=not3 ,in[3]=and4 ,in[4..7]=false ,out=pcloadc ); /* 8-way Or */    
+    And(a=pcloadc ,b=instruction[15] ,out=pcload ); /* And gate */
+
+    // where is pcload
+    PC(in=arout ,load=pcload ,inc=true ,reset=reset ,out[0..14]=pc ); /* Program Counter */
+}
+
+/*
+1 | 110 | 001100 | 000 | 100
+c   xxa | cccccc | ddd | jjj
+
+ __     _    _    
+cde + bde + ade + abc
+
+a   b   c   d   e
+j1  j2  j3  zr  ng
+
+// done
+or1 = (zr + ng)
+not1 = ~(or1)
+and1 = (j3 . not1)     // c~d~e = c . ~(d + e)
+// done 
+nand2 = ~(j2 . zr)
+or2 = (nand2 or ng) 
+not2 = ~(or2)           // bd~e = ~~(bd . ~e) = ~(~(bd) or e)
+// 
+nand3 = ~(j1 . ng)
+or3 = (nand3 or zr) 
+not3 = ~(or3)           // ae~d = ~~(ae . ~d) = ~(~(ae) or d)
+
+and41 = (j1 . j2)
+and4 = (and41, j3)      // abc = ((ab) . c) 
+
+pcload = or(and1, not2, not3, and4)
+
+*/
