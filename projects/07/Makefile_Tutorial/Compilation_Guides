@@ -1,0 +1,69 @@
+touch main.cpp f1.cpp f2.cpp		// creates(if not exists) three files 
+
+gedit main.cpp						// creates(if not exists) and open main.cpp using gedit
+...
+...
+
+Part - 01:---------------------------HOW WE COMPILE AND RUN C++ PROGRAMS?-----------------------------------
+Each .cpp file will compiled seperately..
+And hence should generate seperate object files.
+
+
+We can compile main.cpp by the following command:
+||||||||||||  g++ -c main.cpp   |||||||||||
+
+generates an object file called main.o
+
+Similarly we can use the following two commands to generate object files for f1.cpp and f2.cpp:
+g++ -c f1.cpp				generates f1.o
+g++ -c f2.cpp				generates f2.o
+
+Now link together all those object files and generate an .exe file:
+g++ -o out f1.o f2.o main.o			out is the name of .exe file
+An alternative command for these tree files(which takes all the object files in the directory):
+g++ -o out *.o
+
+Now the programm(namely main function) can be run by the command(we can provide command line arguments and so on...):
+./out
+
+Hopefully you're seeing outputs now.....
+
+
+Part - 02:----------------------------------------MAKEFILE--------------------------------------------------
+
+Now we'll talk about "Makefile".
+
+Create a new makefile:
+touch Makefile
+
+
+target: dependencies 
+	reciepe 1
+	reciepe 2
+	reciepe 3
+	...
+	
+# comment
+# (note: the <tab> in the command line is necessary for make to work) 
+target:  dependency1 dependency2 ...
+      <tab> command
+      
+      
+
+all: main.o f1.o f2.o
+	g++ -o out main.o f1.o f2.o		//	 this is an instruction carried out by object files this is all
+						
+main.o: main.cpp				// target: dependencie list
+	g++ -c main.cpp				// receipes
+
+f1.o: f1.cpp
+	g++ -c f1.cpp
+
+f2.o: f2.cpp
+	g++ -c f2.cpp
+
+
+make compile
+make altcompile
+make clean
+
